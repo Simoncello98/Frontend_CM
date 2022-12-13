@@ -1,0 +1,300 @@
+<form [formGroup]="companyForm"
+      [ngClass]="{'edit-mode': editMode}">
+
+    <!-- Actions -->
+    <div class="actions">
+
+        <!-- Edit button -->
+        <!-- <button mat-icon-button
+                *ngIf="!editMode"
+                [matMenuTriggerFor]="actionsMenu">
+            <mat-icon [svgIcon]="'more_vert'"></mat-icon>
+        </button>
+        <mat-menu #actionsMenu="matMenu">
+            <button mat-menu-item
+                    *ngIf="!editMode"
+                    (click)="toggleEditMode(true)">
+                <mat-icon [svgIcon]="'edit'"></mat-icon>
+                <span>Edit company</span>
+            </button>
+        </mat-menu> -->
+
+        <button mat-icon-button
+                type="button"
+                *ngIf="!editMode && authorizationService.isAuthorized('UpdateCompany')"
+                [matTooltip]="'Edit'"
+                (click)="toggleEditMode(true)">
+            <mat-icon [svgIcon]="'edit'"></mat-icon>
+        </button>
+
+
+
+        <!-- Cancel button -->
+        <button class="cancel-button"
+                mat-icon-button
+                type="button"
+                *ngIf="editMode && !newCompany"
+                [matTooltip]="'Cancel'"
+                (click)="toggleEditMode(false)">
+            <mat-icon [svgIcon]="'cancel'"></mat-icon>
+        </button>
+
+        <!-- Cancel button create company -->
+        <button class="cancel-button"
+                mat-icon-button
+                type="button"
+                *ngIf="editMode && newCompany"
+                [matTooltip]="'Cancel'"
+                [routerLink]="['../']">
+            <mat-icon [svgIcon]="'cancel'"></mat-icon>
+        </button>
+
+        <!-- Save button -->
+        <button mat-icon-button
+                type="button"
+                *ngIf="editMode && !newCompany"
+                [disabled]="companyForm.invalid"
+                [matTooltip]="'Save'"
+                appDebounceClick 
+                (debounceClick)="updateCompany()">
+            <mat-icon [svgIcon]="'save'"></mat-icon>
+        </button>
+
+        <!-- create Company button -->
+        <button mat-icon-button
+                type="button"
+                *ngIf="editMode && newCompany"
+                [disabled]="companyForm.invalid"
+                [matTooltip]="'Create company'"
+                appDebounceClick 
+                (debounceClick)="createCompany()">
+            <mat-icon [svgIcon]="'cloud_upload'"></mat-icon>
+        </button>
+
+        <!-- Delete button -->
+        <button mat-icon-button
+                type="button"
+                *ngIf="editMode && !newCompany && authorizationService.isAuthorized('DeleteCompany')"
+                [matTooltip]="'Delete'"
+                (click)="deleteCompany()">
+            <mat-icon [svgIcon]="'delete'"></mat-icon>
+        </button>
+
+        <!-- Close button -->
+        <button mat-icon-button
+                type="button"
+                *ngIf="!editMode"
+                [matTooltip]="'Close'"
+                [routerLink]="['../']">
+            <mat-icon [svgIcon]="'close'"></mat-icon>
+        </button>
+
+    </div>
+
+    <!-- Avatar and Name -->
+    <div class="avatar-and-name">
+
+        <div class="avatar">
+
+            <div class="upload"
+                 *ngIf="editMode">
+                <input id="avatar-file-input"
+                       class="avatar-file-input"
+                       type="file"
+                       [multiple]="false"
+                       [accept]="'image/jpeg, image/png'"
+                       (change)="uploadAvatar(avatarFileInput.files, $event)"
+                       #avatarFileInput>
+                <label for="avatar-file-input"
+                       matRipple>
+                    <mat-icon [svgIcon]="'photo_camera'"></mat-icon>
+                </label>
+            </div>
+
+            <div class="remove"
+                 *ngIf="editMode">
+                <button mat-icon-button
+                        (click)="removeAvatar()">
+                    <mat-icon [svgIcon]="'delete'"></mat-icon>
+                </button>
+            </div>
+
+            <img *ngIf="company.Logo"
+                 [src]="company.Logo | S3UrlAppendSignature | async"
+                 #avatar>
+
+            <div class="no-avatar"
+                 *ngIf="!company.Logo">
+                {{company.CompanyName?.charAt(0)}}
+            </div>
+        </div>
+
+        <!-- View -->
+        <div class="view"
+             *ngIf="company.CompanyName && !editMode">
+            <div class="name">{{company.CompanyName}}</div>
+        </div>
+    </div>
+
+    <!-- CompanyName -->
+    <div class="address"
+         *ngIf="newCompany">
+        <!-- Edit -->
+        <div class="edit"
+             *ngIf="editMode">
+            <mat-form-field class="treo-mat-no-subscript">
+                <mat-label>Company name</mat-label>
+                <input matInput
+                       [formControlName]="'CompanyName'"
+                       [placeholder]="'CompanyName'"
+                       [spellcheck]="false">
+            </mat-form-field>
+        </div>
+    </div>
+
+    <!-- WebsiteURL -->
+    <div class="address"
+         *ngIf="company.WebsiteURL || editMode">
+        <mat-icon *ngIf="!editMode"
+                  class="icon"
+                  [svgIcon]="'language'"></mat-icon>
+
+        <!-- View -->
+        <div class="view"
+             *ngIf="!editMode">
+            <mat-label>Website Url</mat-label>
+            <a class="link"
+               [href]="'https://' + company.WebsiteURL">
+                {{company.WebsiteURL}}
+            </a>
+
+        </div>
+        <!-- Edit -->
+        <div class="edit"
+             *ngIf="editMode">
+            <mat-form-field class="treo-mat-no-subscript">
+                <mat-label>Website Url</mat-label>
+                <input matInput
+                       [formControlName]="'WebsiteURL'"
+                       [placeholder]="'WebsiteURL'"
+                       [spellcheck]="false">
+            </mat-form-field>
+        </div>
+    </div>
+
+    <!-- Theme -->
+    <div class="address"
+         *ngIf="company.Theme || editMode">
+        <mat-icon *ngIf="!editMode"
+                  class="icon"
+                  [svgIcon]="'color_lens'"></mat-icon>
+
+        <!-- View -->
+        <div class="view"
+             *ngIf="!editMode">
+            <mat-label>CM Suite Theme</mat-label>
+            <span>{{company.Theme}}</span>
+        </div>
+        <!-- Edit -->
+        <div class="edit"
+             *ngIf="editMode">
+            <mat-form-field class="treo-mat-no-subscript">
+                <mat-label>CM Suite Theme</mat-label>
+                <input matInput
+                       [formControlName]="'Theme'"
+                       [placeholder]="'Theme'"
+                       [spellcheck]="false">
+            </mat-form-field>
+        </div>
+    </div>
+
+
+    <!--  Badge front template image -->
+    <div class="avatar-and-name"
+         *ngIf="company.BadgeFrontTemplateURL || editMode">
+        <mat-label *ngIf="!editMode"
+                   style="color:grey">Badge front template image</mat-label>
+        <mat-label *ngIf="editMode">Badge front template image</mat-label>
+
+        <div class="avatar">
+            <div class="upload"
+                 *ngIf="editMode">
+                <input id="avatar-file-input-badge-front"
+                       class="avatar-file-input"
+                       type="file"
+                       [multiple]="false"
+                       [accept]="'image/jpeg, image/png'"
+                       (change)="uploadBadgeTemplate(avatarFileInput.files,'front',$event)"
+                       #avatarFileInput>
+                <label for="avatar-file-input-badge-front"
+                       matRipple>
+                    <mat-icon [svgIcon]="'photo_camera'"></mat-icon>
+                </label>
+            </div>
+
+            <div class="remove"
+                 *ngIf="editMode">
+                <button mat-icon-button
+                        (click)="removeAvatar()">
+                    <mat-icon [svgIcon]="'delete'"></mat-icon>
+                </button>
+            </div>
+
+            <img *ngIf="company.BadgeFrontTemplateURL"
+                 [src]="company.BadgeFrontTemplateURL | S3UrlAppendSignature | async"
+                 #avatar>
+
+        </div>
+    </div>
+
+    <!--  Badge back template image -->
+    <div class="avatar-and-name"
+         *ngIf="company.BadgeBackTemplateURL || editMode">
+        <mat-label *ngIf="!editMode"
+                   style="color:grey">Badge back template image</mat-label>
+        <mat-label *ngIf="editMode">Badge back template image</mat-label>
+
+        <div class="avatar">
+            <div class="upload"
+                 *ngIf="editMode">
+                <input id="avatar-file-input-badge-back"
+                       class="avatar-file-input"
+                       type="file"
+                       [multiple]="false"
+                       [accept]="'image/jpeg, image/png'"
+                       (change)="uploadBadgeTemplate(avatarFileInput.files, 'back',$event)"
+                       #avatarFileInput>
+                <label for="avatar-file-input-badge-back"
+                       matRipple>
+                    <mat-icon [svgIcon]="'photo_camera'"></mat-icon>
+                </label>
+            </div>
+
+            <div class="remove"
+                 *ngIf="editMode">
+                <button mat-icon-button
+                        (click)="removeAvatar()">
+                    <mat-icon [svgIcon]="'delete'"></mat-icon>
+                </button>
+            </div>
+
+            <img *ngIf="company.BadgeBackTemplateURL"
+                 [src]="company.BadgeBackTemplateURL | S3UrlAppendSignature | async"
+                 #avatar>
+
+        </div>
+    </div>
+
+    <mat-divider class="mt-6 mb-6"></mat-divider>
+
+    <div class="flex items-center mt-auto" *ngIf="!newCompany">
+        <button class="mt-2 mb-2"
+                mat-stroked-button
+                [color]="'primary'"
+                [matTooltip]="'Go to users'"
+                [routerLink]="['/users/Company/', company.CompanyName]">
+            <mat-icon [svgIcon]="'people_alt'"></mat-icon>
+            <span class="ml-3">Go to {{company.CompanyName}} users</span>
+        </button>
+    </div>
+</form>

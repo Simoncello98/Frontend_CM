@@ -1,0 +1,112 @@
+<!-- Notifications toggle -->
+<button class="notifications-toggle"
+        mat-icon-button
+        (click)="openPanel()"
+        #notificationsOrigin>
+        <ng-template [ngIf]="getUnreadCount > 0" [ngIfElse]="noNotifications">
+            <div>
+                <mat-icon matBadge="{{getUnreadCount}}" matBadgeColor="warn" [svgIcon]="'notifications_active'"> </mat-icon>
+            </div>
+           </ng-template>
+           
+           <ng-template #noNotifications>
+            <div><mat-icon [svgIcon]="'notifications'"></mat-icon></div>
+        </ng-template>
+</button>
+
+<!-- Notifications panel -->
+<ng-template #notificationsPanel>
+
+    <div class="notifications-panel">
+
+        <div class="header">
+
+            <div class="title">
+                Notifications
+            </div>
+
+        </div>
+
+        <div class="content">
+
+        <ng-container>
+            <mat-tab-group>
+                <mat-tab label="Messages">
+                    <table mat-table
+                        [dataSource]="distinctNormativesDataSource"
+                        matSort>
+                        <ng-container matColumnDef="Title">
+                            <th mat-header-cell
+                                *matHeaderCellDef
+                                mat-sort-header>
+                                Messages not yet expired
+                            </th>
+                            <td mat-cell
+                                *matCellDef="let message" class="selectable">
+                                <div class="message-title">
+                                    <span class="name disable-select">{{message.Title}}</span>
+                                </div>
+                            </td>
+                        </ng-container>
+                        <ng-container matColumnDef="Read">
+                            <th mat-header-cell
+                                *matHeaderCellDef
+                                mat-sort-header>
+                            </th>
+                            <td mat-cell
+                                *matCellDef="let message; let i = index">
+                                    <div *ngIf="message.Seen"><mat-icon>visibility</mat-icon></div>
+                            </td>
+                        </ng-container>
+                        
+                        <tr mat-header-row
+                            *matHeaderRowDef="activeTableColumns"></tr>
+                        <tr class="active-row"
+                            mat-row
+                            *matRowDef="let row; ; let i = index; columns: activeTableColumns" (click)="goToMessage(i, distinctNormativesDataSource)"></tr>
+                    </table>
+                </mat-tab>
+                
+                <mat-tab label="Directives">
+                    <table mat-table
+                        [dataSource]="distinctDirectivesDataSource"
+                        matSort>
+                        <ng-container matColumnDef="Title">
+                            <th mat-header-cell
+                                *matHeaderCellDef
+                                mat-sort-header>
+                                Messages already acked
+                            </th>
+                            <td mat-cell
+                                *matCellDef="let message" class="selectable">
+                                <div class="message-title">
+                                    <span class="name">{{message.Title}}</span>
+                                </div>
+                            </td>                       
+                        </ng-container>
+                        <ng-container matColumnDef="Read">
+                            <th mat-header-cell
+                                *matHeaderCellDef
+                                mat-sort-header>
+                            </th>
+                            <td mat-cell
+                                *matCellDef="let message">
+                                <div>
+                                    <mat-icon>done</mat-icon>
+                                </div>
+                            </td>
+                        </ng-container>
+                        <tr mat-header-row
+                            *matHeaderRowDef="directiveTableColumns"></tr>
+                        <tr class="directive-row"
+                            mat-row
+                            *matRowDef="let row; ; let i = index; columns: directiveTableColumns" (click)="goToMessage(i, distinctDirectivesDataSource)"></tr>
+                    </table>
+                </mat-tab>
+            </mat-tab-group>
+        </ng-container>
+        </div>
+
+    </div>
+
+</ng-template>

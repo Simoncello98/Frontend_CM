@@ -1,0 +1,566 @@
+<form [formGroup]="createRequestForm"
+      [ngClass]="{'edit-mode': editMode}">
+
+    <!-- Actions -->
+    <div class="actions">
+
+        <!-- Cancel button create visitorsrequest -->
+        <button class="cancel-button"
+                mat-icon-button
+                *ngIf="editMode && newVisitorsRequest"
+                [matTooltip]="'Cancel'"
+                [routerLink]="['../']">
+            <mat-icon [svgIcon]="'cancel'"></mat-icon>
+        </button>
+
+        <!-- create VisitorsRequest button -->
+        <button mat-icon-button
+                *ngIf="editMode && newVisitorsRequest"
+                [disabled]="createRequestForm.invalid"
+                [matTooltip]="'Create visitorsrequest'">
+            <mat-icon [svgIcon]="'cloud_upload'"></mat-icon>
+        </button>
+
+        <!-- Close button -->
+        <button mat-icon-button
+                [matTooltip]="'Close'"
+                [routerLink]="['../']">
+            <mat-icon [svgIcon]="'close'"></mat-icon>
+        </button>
+
+    </div>
+    <!-- stepper -->
+
+    <form [formGroup]="verticalStepperForm">
+        <mat-vertical-stepper [linear]="true"
+                              (selectionChange)="selectionChange($event)"
+                              #verticalStepper>
+            <mat-step [formGroupName]="'step1'"
+                      [stepControl]="verticalStepperForm.get('step1')"
+                      #verticalStepperStep1>
+                <ng-template matStepLabel>Select a visitor</ng-template>
+                <div>
+                    <!-- step 1 -->
+                    <!-- SelectVisitor -->
+                    <div class="formInfo">
+                        <!-- Edit -->
+                        <div class="edit">
+                            <select-from-api [apiPromise]="VisitorPromise"
+                                             [keyLocale]="'Email'"
+                                             [keyOutput]="'Email'"
+                                             [multiple]="false"
+                                             [FormControl]="selectForm.get('selectVisitor')"
+                                             [label]="'Search username or email'"
+                                             [infoKeys]="['FName','LName']"></select-from-api>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="justify-center">
+                    <!-- button create new visitor  -->
+                    <button class="px-8"
+                            mat-flat-button
+                            [color]="'primary'"
+                            (click)="startCreateVisitorProcess()"
+                            matStepperNext>
+                        Create new Visitor
+                    </button>
+                </div>
+                <br>
+                <div class="flex justify-end">
+                    <button class="px-8"
+                            mat-flat-button
+                            [color]="'primary'"
+                            [disabled]="!this.selectForm.get('selectVisitor').value ||!visitor "
+                            matStepperNext>
+                        Next
+                    </button>
+                </div>
+
+            </mat-step>
+            <!-- step 2 -->
+            <mat-step [formGroupName]="'step2'"
+                      [stepControl]="verticalStepperForm.get('step2')"
+                      #verticalStepperStep2>
+                <ng-template matStepLabel>Visitor info</ng-template>
+                <div [formGroup]='userForm'>
+                   
+                    <!-- FName -->
+                    <div class="formInfo-with-label"
+                         *ngIf=" !visitor || (visitor && visitor.FName)">
+
+                        <ng-container *ngIf="visitor && visitor.FName">
+                            <mat-icon class="icon"
+                                      [svgIcon]="'account_box'"></mat-icon>
+                            <!-- View -->
+                            <div class="view">
+                                <mat-label>First name</mat-label>
+                                <span>{{visitor.FName}}</span>
+
+
+                            </div>
+
+                        </ng-container>
+
+
+                        <!-- Edit -->
+                        <div class="edit"
+                             *ngIf="!visitor">
+                            <mat-form-field class="treo-mat-no-subscript">
+                                <mat-label>First name</mat-label>
+                                <input matInput
+                                       [formControl]="userForm.get('FName')"
+                                       [value]="VisitorFirstName | titlecase"
+                                       [(ngModel)]="VisitorFirstName"
+                                       [placeholder]="'First Name'"
+                                       [spellcheck]="false">
+                            </mat-form-field>
+                        </div>
+
+                    </div>
+
+                    <!-- LName -->
+                    <div class="formInfo-with-label"
+                         *ngIf=" !visitor || (visitor && visitor.LName)">
+
+
+                        <ng-container *ngIf="visitor && visitor.LName">
+                            <mat-icon class="icon"
+                                      [svgIcon]="'account_box'"></mat-icon>
+
+                            <!-- View -->
+                            <div class="view">
+                                <mat-label>Last name</mat-label>
+                                <span>{{visitor.LName}}</span>
+
+                            </div>
+
+                        </ng-container>
+
+
+
+                        <!-- Edit -->
+                        <div class="edit"
+                             *ngIf="!visitor">
+                            <mat-form-field class="treo-mat-no-subscript">
+                                <mat-label>Last name</mat-label>
+                                <input matInput
+                                       [formControl]="userForm.get('LName')"
+                                       [value]="VisitorLastName | titlecase"
+                                       [(ngModel)]="VisitorLastName"
+                                       [placeholder]="'Last Name'"
+                                       [spellcheck]="false">
+                            </mat-form-field>
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="formInfo-with-label"
+                         *ngIf=" !visitor || (visitor && visitor.Email)">
+                        <ng-container *ngIf="visitor && visitor.Email">
+                            <mat-icon class="icon"
+                                      [svgIcon]="'email'"></mat-icon>
+
+                            <!-- View -->
+                            <div class="view"
+                                 *ngIf="visitor && visitor.Email">
+                                <mat-label>Email</mat-label>
+                                <span> {{visitor.Email}}</span>
+
+                            </div>
+
+                        </ng-container>
+
+
+
+                        <!-- Edit -->
+                        <div class="edit"
+                             *ngIf="!visitor">
+                            <div class="edit-email">
+                                <mat-form-field class="treo-mat-no-subscript">
+                                    <mat-label>Email</mat-label>
+                                    <input matInput
+                                        type="email"
+                                        [formControl]="userForm.get('Email')"
+                                        [value]="VisitorEmail | lowercase"
+                                        [(ngModel)]="VisitorEmail"
+                                        [placeholder]="'Email'"
+                                        [spellcheck]="false">
+                                </mat-form-field>
+                                <p>Leave this field blank to auto-generate your email</p>
+                            </div> 
+                        </div>
+                    </div>
+
+                    <!-- SocialNumber -->
+                    <div class="formInfo-with-label"
+                         *ngIf=" !visitor || (visitor && visitor.SocialNumber)">
+
+
+
+                        <ng-container *ngIf="visitor && visitor.SocialNumber">
+                            <mat-icon class="icon"
+                                      [svgIcon]="'credit_card'"></mat-icon>
+
+                            <!-- View -->
+                            <div class="view">
+                                <mat-label>Social Security Number (CF)</mat-label>
+                                <span> {{visitor.SocialNumber}}</span>
+
+                            </div>
+
+                        </ng-container>
+
+
+                        <!-- Edit -->
+                        <div class="edit"
+                             *ngIf="!visitor">
+                            <mat-form-field class="treo-mat-no-subscript">
+                                <mat-label>Social Security Number (CF)</mat-label>
+                                <input matInput
+                                       [formControl]="userForm.get('SocialNumber')"
+                                       [value]="VisitorCF | uppercase"
+                                       [(ngModel)]="VisitorCF"
+                                       [placeholder]="'Social Security Number (CF)'"
+                                       [spellcheck]="false">
+                            </mat-form-field>
+                        </div>
+                    </div>
+
+                    <!-- TelephoneNumber -->
+                    <div class="formInfo-with-label"
+                         *ngIf=" !visitor || (visitor && visitor.TelephoneNumber)">
+
+                        <ng-container *ngIf="visitor && visitor.TelephoneNumber">
+                            <mat-icon class="icon"
+                                      [svgIcon]="'phone'"></mat-icon>
+
+                            <!-- View -->
+                            <div class="view">
+                                <mat-label>Telphone number</mat-label>
+                                <span>{{visitor.TelephoneNumber}}</span>
+
+                            </div>
+
+                        </ng-container>
+
+
+                        <!-- Edit -->
+                        <div class="edit"
+                             *ngIf="!visitor">
+                            <mat-form-field class="treo-mat-no-subscript">
+                                <mat-label>Telphone number</mat-label>
+                                <input matInput
+                                       [formControl]="userForm.get('TelephoneNumber')"
+                                       [placeholder]="'Telephone Number'"
+                                       [spellcheck]="false">
+                            </mat-form-field>
+                        </div>
+                    </div>
+
+                    <!-- PlaceOfBirth -->
+                    <div class="formInfo-with-label"
+                         *ngIf=" !visitor || (visitor && visitor.PlaceOfBirth)">
+
+                        <ng-container *ngIf="visitor && visitor.PlaceOfBirth">
+                            <mat-icon class="icon"
+                                      [svgIcon]="'heroicons_outline:home'"></mat-icon>
+
+                            <!-- View -->
+                            <div class="view"
+                                 *ngIf="visitor && visitor.PlaceOfBirth">
+                                <mat-label>Place of birth</mat-label>
+                                <span> {{visitor.PlaceOfBirth}}</span>
+
+                            </div>
+
+                        </ng-container>
+
+
+
+
+
+                        <!-- Edit -->
+                        <div class="edit"
+                             *ngIf="!visitor">
+                            <mat-form-field class="treo-mat-no-subscript">
+                                <mat-label>Place of birth</mat-label>
+                                <input matInput
+                                       [formControl]="userForm.get('PlaceOfBirth')"
+                                       [value]="VisitorPOB | titlecase"
+                                       [(ngModel)]="VisitorPOB"
+                                       [placeholder]="'Place Of Birth'"
+                                       [spellcheck]="false">
+                            </mat-form-field>
+                        </div>
+                    </div>
+
+                    <!-- TODO: select a type of document  -->
+
+                    <!-- CardID -->
+                    <div class="formInfo-with-label"
+                         *ngIf=" !visitor || (visitor && visitor.CardID)">
+
+                        <ng-container *ngIf="visitor && visitor.CardID">
+                            <mat-icon class="icon"
+                                      [svgIcon]="'credit_card'"></mat-icon>
+
+                            <!-- View -->
+                            <div class="view">
+                                <mat-label>Card ID</mat-label>
+                                <span>{{visitor.CardID}}</span>
+
+                            </div>
+
+                        </ng-container>
+
+                        <!-- Edit -->
+                        <div class="edit"
+                             *ngIf="!visitor">
+                            <mat-form-field class="treo-mat-no-subscript">
+                                <mat-label>Card ID</mat-label>
+                                <input matInput
+                                       [formControl]="userForm.get('CardID')"
+                                       [value]="VisitorCID | uppercase"
+                                       [(ngModel)]="VisitorCID"
+                                       [placeholder]="'Card ID'"
+                                       [spellcheck]="false">
+                            </mat-form-field>
+                        </div>
+                    </div>
+
+                    <!-- Birthday -->
+                    <div class="formInfo-with-label"
+                         *ngIf=" !visitor || (visitor && visitor.DateOfBirth)">
+
+                        <ng-container *ngIf=" visitor && visitor.DateOfBirth">
+                            <mat-icon class="icon"
+                                      [svgIcon]="'cake'"></mat-icon>
+
+                            <!-- View -->
+                            <div class="view">
+                                <mat-label>Birthday</mat-label>
+                                <span>{{visitor.DateOfBirth | date:'longDate'}}</span>
+
+                            </div>
+
+                        </ng-container>
+
+
+
+                        <!-- Edit -->
+                        <div class="edit"
+                             *ngIf="!visitor">
+
+                            <mat-form-field class="treo-mat-no-subscript">
+                                <mat-label>Birthday</mat-label>
+                                <input matInput
+                                       [matDatepicker]="birthdayDatepicker"
+                                       [formControl]="userForm.get('DateOfBirth')"
+                                       [placeholder]="'Birthday'">
+                                <mat-datepicker-toggle matSuffix
+                                                       [for]="birthdayDatepicker">
+                                </mat-datepicker-toggle>
+                                <mat-datepicker #birthdayDatepicker></mat-datepicker>
+                            </mat-form-field>
+
+                        </div>
+
+                    </div>
+                    <!-- </div> -->
+                    <div class="flex justify-end">
+                        <button class="px-8 mr-10 mt-10"
+                                mat-flat-button
+                                [color]="'accent'"
+                                type="button"
+                                matStepperPrevious>
+                            Back
+                        </button>
+                        <button class="px-8 mr-10 mt-10"
+                                mat-flat-button
+                                [color]="'primary'"
+                                [disabled]="verticalStepperStep2.stepControl.invalid && !visitor"
+                                matStepperNext>
+                            Next
+                        </button>
+                    </div>
+                </div>
+            </mat-step>
+
+            <!-- step 3 -->
+            <mat-step [formGroupName]="'step3'"
+                      [stepControl]="verticalStepperForm.get('step3')"
+                      #verticalStepperStep3>
+                <ng-template matStepLabel>Request info</ng-template>
+
+                <!-- todo: add edit mode request info views -->
+
+
+                <!-- allow you to select an host, if you are not an admin i can autoselect the user -->
+                <div class="formInfo-with-label"
+                     *ngIf="!authorizationService.getFunctionalityMetadata('createVisitorRequest').DeniedOperations?.includes('SelectHost')">
+                    <!-- Edit -->
+                    <div class="edit">
+                        <select-from-api [apiPromise]="hostsPromise"
+                                         [keyLocale]="'Email'"
+                                         [keyOutput]="'Email'"
+                                         [multiple]="false"
+                                         [FormControl]="requestForm.get('selectHost')"
+                                         [label]="'Select an host User'"
+                                         [infoKeys]="['FName','LName']"
+                                         [required] = "true"></select-from-api>
+                    </div>
+                </div>
+
+                <!-- host telephone nyumber -->
+                <div class="formInfo-with-label">
+                    <!-- View -->
+                    <div class="edit"
+                         *ngIf="requestHost && requestHost.TelephoneNumber">
+                        <mat-form-field class="treo-mat-no-subscript"
+                                        appearance="fill">
+                            <mat-label>Host telephone number</mat-label>
+                            <input matInput
+                                   [readonly]="requestHost.TelephoneNumber"
+                                   [formControl]="requestForm.get('requestHostTelephoneNumber')"
+                                   [placeholder]="'Host telephone number'"
+                                   [spellcheck]="false">
+                        </mat-form-field>
+                    </div>
+
+                    <!-- <div class="view"
+                         *ngIf="">
+                        {{requestHost.TelephoneNumber}}
+                    </div> -->
+                    <!-- Edit -->
+                    <div class="edit"
+                         *ngIf="!requestHost || !requestHost.TelephoneNumber">
+                        <mat-form-field class="treo-mat-no-subscript"
+                                        appearance="fill">
+                            <mat-label>Host telephone number</mat-label>
+                            <input matInput
+                                   [formControl]="requestForm.get('requestHostTelephoneNumber')"
+                                   [placeholder]="'Host telephone number'"
+                                   [spellcheck]="false">
+                        </mat-form-field>
+                    </div>
+                </div>
+
+                <!-- allow you to select a company from host  -->
+                <div class="formInfo-with-label">
+                    <!-- Edit -->
+                    <div class="edit">
+                        <select-from-api [apiObservable]="hostCompaniesObservable"
+                                         [keyLocale]="'CompanyName'"
+                                         [keyOutput]="'CompanyName'"
+                                         [multiple]="false"
+                                         [FormControl]="requestForm.get('selectCompany')"
+                                         [label]="'Select an host Company'"
+                                         [required] = "true"></select-from-api>
+                    </div>
+                </div>
+
+                <!-- startDate -->
+                <div class="formInfo-with-label">
+
+                    <!-- Edit -->
+                    <div class="edit">
+                        <mat-form-field class="treo-mat-no-subscript" style="margin-right: 6px;"
+                                        appearance="fill">
+                            <mat-label>Estimated arrival date</mat-label>
+                            <input 
+                                matInput 
+                                readonly
+                                [min]="minStartDate"
+                                [matDatepicker]="picker" 
+                                [formControl]="requestForm.get('startDate')"
+                                (dateChange)="onArrivalDateChange()">
+                            <mat-datepicker-toggle 
+                                matSuffix 
+                                [for]="picker"></mat-datepicker-toggle>
+                            <mat-datepicker #picker></mat-datepicker>
+                        </mat-form-field>
+
+                        <mat-form-field class="treo-mat-no-subscript"
+                                        appearance="fill">
+                            <mat-label>Estimated arrival time</mat-label>
+                            <input matInput
+                                   readonly
+                                   (change)="onArrivalDateChange()"
+                                   [formControl]="requestForm.get('startTime')">
+
+                            <button 
+                                class="treo-theme-light" 
+                                mat-icon-button 
+                                (click)="openArrivalTimePicker()">
+                                <mat-icon>alarm</mat-icon>
+                            </button>
+                        </mat-form-field>
+                    </div>
+
+                </div>
+
+                <!-- endDate -->
+                <div class="formInfo-with-label">
+                    <!-- Edit -->
+                    <div class="edit">
+                        <mat-form-field 
+                            class="treo-mat-no-subscript" style="margin-right: 6px;"
+                            *ngIf="!deniedSelectEndDate"
+                            appearance="fill">
+                            <mat-label>Estimated end visit date</mat-label>
+                            <input 
+                                matInput 
+                                readonly
+                                [min]="minEndDate"
+                                [matDatepicker]="picker" 
+                                [formControl]="requestForm.get('endDate')">
+                            <mat-datepicker-toggle 
+                                matSuffix 
+                                [for]="picker"></mat-datepicker-toggle>
+                            <mat-datepicker #picker></mat-datepicker>
+                        </mat-form-field>
+                        
+                        <mat-form-field class="treo-mat-no-subscript"
+                                        appearance="fill">
+                            <mat-label>Estimated end visit time</mat-label>
+                            <input matInput
+                                readonly
+                                [formControl]="requestForm.get('endTime')">
+
+                            <button 
+                                class="treo-theme-light" 
+                                mat-icon-button 
+                                (click)="openEndTimePicker()">
+                                <mat-icon>alarm</mat-icon>
+                            </button>
+                        </mat-form-field>
+                    </div>
+                </div>
+
+
+                <div class="flex justify-end">
+                    <button class="px-8 mr-10 mt-10"
+                            mat-flat-button
+                            [color]="'accent'"
+                            type="button"
+                            matStepperPrevious>
+                        Back
+                    </button>
+                    <!-- || !requestHost || !visitor" -->
+                    <button class="px-8 mr-10 mt-10"
+                            mat-flat-button
+                            [color]="'primary'"
+                            (click)="confirmRequest()"
+                            [disabled]="requestForm.invalid || !requestHost || !visitor || pendingCreation"
+                            type="button">
+                        Confirm
+                    </button>
+                </div>
+            </mat-step>
+
+
+        </mat-vertical-stepper>
+    </form>
+
+</form>

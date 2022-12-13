@@ -1,0 +1,30 @@
+@import "treo";
+
+button {
+    .mat-icon {
+        @include treo-icon-size(20);
+        margin-right: 8px;
+
+        @include treo-breakpoint("xs") {
+            margin-right: 0;
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Theming
+// -----------------------------------------------------------------------------------------------------
+@include treo-theme {
+    $primary: map-get($theme, primary);
+
+    mailbox-compose {
+        .header {
+            background: map-get($primary, default);
+            color: map-get($primary, default-contrast);
+
+            .mat-icon {
+                color: map-get($primary, default-contrast);
+            }
+        }
+    }
+}

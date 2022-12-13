@@ -1,0 +1,18 @@
+// -----------------------------------------------------------------------------------------------------
+// @ You can use this file to import custom styles.
+//
+// @ Styles from this file will override anything from 'vendors.scss' file allowing customizations and
+//  modifications of third party libraries.
+// -----------------------------------------------------------------------------------------------------
+@import "../../node_modules/@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
+@import "../../node_modules/angular-calendar/css/angular-calendar.css";
+
+.cd-selected {
+  background-color: #0695a2b2 !important;
+  border-radius: 100%;
+}
+
+.cd-disabled {
+  background-color: rgba(99, 99, 99, 0.6) !important;
+  border-radius: 100%;
+}

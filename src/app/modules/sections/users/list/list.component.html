@@ -1,0 +1,574 @@
+<div class="content-layout right-sidebar-fullheight-basic-inner-scroll">
+
+    <mat-drawer-container (backdropClick)="onBackdropClicked()">
+
+        <!-- Drawer -->
+        <mat-drawer [mode]="drawerMode"
+                    [opened]="false"
+                    [position]="'end'"
+                    [disableClose]="true"
+                    #matDrawer>
+
+            <router-outlet></router-outlet>
+
+        </mat-drawer>
+
+        <mat-drawer-content #content>
+
+            <!-- Main -->
+            <div class="main">
+
+                <!-- Header -->
+                <div class="header">
+
+                    <div class=  "flex">
+                        <!-- Title -->
+                        <div class="title">
+
+                            <div class="breadcrumb mb-2">
+                                <span class="path">CM People</span>
+                            </div>
+
+
+
+                            <h1>Users</h1>
+                            <ng-container *ngIf="currentTableDataGroup === 'users'">
+                                <div class="users-count">
+                                    <ng-container *ngIf="usersCount > 0">
+                                        {{usersCount}}
+                                    </ng-container>
+                                    {{usersCount | i18nPlural: {
+                                    '=0' : 'No users',
+                                    '=1' : 'user',
+                                    'other': 'users'
+                                    } }}
+                                </div>
+                            </ng-container>
+                            <ng-container *ngIf="currentTableDataGroup === 'visitors'">
+                                <div class="users-count">
+                                    <ng-container *ngIf="visitorsCount > 0">
+                                        {{visitorsCount}}
+                                    </ng-container>
+                                    {{visitorsCount | i18nPlural: {
+                                    '=0' : 'No visitors',
+                                    '=1' : 'visitor',
+                                    'other': 'visitors'
+                                    } }}
+                                </div>
+                            </ng-container>
+                            <ng-container *ngIf="currentTableDataGroup === 'requests'">
+                                <div class="users-count">
+                                    <ng-container *ngIf="requestsCount > 0">
+                                        {{requestsCount}}
+                                    </ng-container>
+                                    {{requestsCount | i18nPlural: {
+                                    '=0' : 'No visitors requests',
+                                    '=1' : 'request',
+                                    'other': 'requests'
+                                    } }}
+                                </div>
+                            </ng-container>
+
+                        </div>
+                        <!-- Main actions -->
+                        <div class="main-actions">
+
+                            <!-- Search -->
+                            <!-- <div class="search"> -->
+
+                                <mat-form-field class="search mb-4 treo-mat-dense treo-mat-no-subscript">
+                                    <mat-icon matPrefix
+                                              [svgIcon]="'search'"></mat-icon>
+                                    <input matInput
+                                           [formControl]="searchInputControl"
+                                           [autocomplete]="'off'"
+                                           [placeholder]="'Search'">
+                                </mat-form-field>
+<!-- 
+                            </div> -->
+
+                            <!-- Add user button -->
+                            <button class="add mr-4"
+                                    mat-flat-button
+                                    [color]="'primary'"
+                                    (click)="createUser()"
+                                    *ngIf="this.authorizationService.isAuthorized('CreateUser')">
+                                <mat-icon [svgIcon]="'add'"></mat-icon>
+                                New User
+                            </button>
+                            <!-- Add request button -->
+                            <button class="add mr-4"
+                                    mat-flat-button
+                                    [color]="'primary'"
+                                    (click)="createVisitorsRequest()"
+                                    *ngIf="this.authorizationService.isAuthorized('CreateVisitorRequest')">
+                                <mat-icon [svgIcon]="'add'"></mat-icon>
+                                New Visitor Request
+                            </button>
+
+                        </div>
+                    </div>
+
+                    <div
+                         class="actions flex items-center  pt-8  dark:bg-transparent lt-lg:px-6">
+                        <mat-button-toggle-group class="btc-chart-timespan-toggle"
+                                                 [value]="currentTableDataGroup"
+                                                 (change)="toggleGroupChange($event)"
+                                                 #matButtonToggleGroup>
+                            <mat-button-toggle [value]="'users'"
+                                               *ngIf="usersCount !== 0">Users</mat-button-toggle>
+
+                            <mat-button-toggle [value]="'visitors'"
+                                               *ngIf="visitorsCount !== 0">
+                                Visitors</mat-button-toggle>
+                            <mat-button-toggle [value]="'requests'"
+                                               *ngIf="requestsCount !== 0">Visitor Requests</mat-button-toggle>
+
+
+
+                        </mat-button-toggle-group>
+                    </div>
+
+
+
+                </div>
+
+                <!-- Users list -->
+                <ng-container *ngIf="currentTableDataGroup === 'users'">
+                    <div class="users-list">
+
+                        <ng-container *ngIf="usersCount > 0; else noUsers">
+
+                            <!-- Table -->
+                            <table mat-table
+                                   #UsersSort='matSort'
+                                   [dataSource]="usersDataSource"
+                                   matSort>
+                                <!-- User info -->
+                                <ng-container matColumnDef="Info">
+                                    <th mat-header-cell
+                                        *matHeaderCellDef
+                                        mat-sort-header>
+                                        User info
+                                    </th>
+                                    <td mat-cell
+                                        *matCellDef="let user">
+                                        <div class="separator-margin"></div>
+                                        <div class="name-content">
+                                            <span class="name">{{ user.LName + ' ' + user.FName | titlecase }}</span>
+                                        </div>
+                                        <div class="separator-margin"></div>
+                                        <div class="name-content">
+                                            <span class="name">{{user.Email}}</span>
+                                        </div>
+                                        <div class="separator-margin"></div>
+                                    </td>
+                                </ng-container>
+                                <!-- related companies -->
+                                <ng-container matColumnDef="RelatedCompanies">
+                                    <th mat-header-cell
+                                        *matHeaderCellDef
+                                        mat-sort-header>
+                                        Companies
+                                    </th>
+                                    <td mat-cell
+                                        *matCellDef="let user">
+                                        <ng-container *ngFor="let company of user.Companies">
+                                            <div class="separator-margin"></div>
+                                            <div class="name-content">
+                                                <span class="name">{{company}}</span>
+                                            </div>
+                                            <div class="separator-margin"></div>
+                                        </ng-container>
+                                    </td>
+                                </ng-container>
+                                <!-- actions -->
+                                <ng-container matColumnDef="Actions">
+                                    <th mat-header-cell
+                                        *matHeaderCellDef
+                                        mat-sort-header>
+                                        Actions
+                                    </th>
+                                    <td mat-cell
+                                        *matCellDef="let user"
+                                        (click)="$event.stopPropagation()">
+                                        <ng-container>
+                                            <button 
+                                                    mat-flat-button="seeMyDetailsButton"
+                                                    class="mat-focus-indicator px-3 mb-1 mt-1 ml-2 mat-flat-button mat-button-base mat-primary blue-300"
+                                                    (click)="goToUser(user.Email)">
+                                                <span class="mat-button-wrapper"> See details </span>
+                                                <div matripple=""
+                                                     class="mat-ripple mat-button-ripple"></div>
+                                                <div class="mat-button-focus-overlay"></div>
+                                            </button>
+                                        </ng-container>
+                                    </td>
+
+                                </ng-container>
+
+                                <tr mat-header-row
+                                    *matHeaderRowDef="usersTableColumns"></tr>
+                                <tr class="user-row"
+                                    [ngClass]="{'selected': selectedUser && selectedUser.Email === row.Email}"
+                                    mat-row
+                                    *matRowDef="let row; columns: usersTableColumns;"
+                                    (click)="goToUser(row.Email)"></tr>
+
+                            </table>
+                            <mat-paginator (page)="scrollToTop()" [pageSizeOptions]="[50, 100, 150]" showFirstLastButtons></mat-paginator>
+
+                        </ng-container>
+
+                        <ng-template #noUsers>
+                            <div class="no-users">There are no users!</div>
+                        </ng-template>
+
+                    </div>
+                </ng-container>
+
+                <!-- visitors list -->
+                <ng-container *ngIf="currentTableDataGroup === 'visitors'">
+                    <div class="users-list">
+
+                        <ng-container *ngIf="visitorsCount > 0; else noVisitors">
+
+                            <!-- Table -->
+                            <table mat-table
+                                   #VisitorsSort='matSort'
+                                   [dataSource]="visitorsDataSource"
+                                   matSort>
+                                <!-- User info -->
+                                <ng-container matColumnDef="Info">
+                                    <th mat-header-cell
+                                        *matHeaderCellDef
+                                        mat-sort-header>
+                                        User info
+                                    </th>
+                                    <td mat-cell
+                                        *matCellDef="let user">
+                                        <div class="separator-margin"></div>
+                                        <div class="name-content">
+                                            <span class="name">{{ user.LName + ' ' + user.FName | titlecase }}</span>
+                                        </div>
+                                        <div class="separator-margin"></div>
+                                        <div class="name-content">
+                                            <span class="name">{{user.Email}}</span>
+                                        </div>
+                                        <div class="separator-margin"></div>
+                                    </td>
+                                </ng-container>
+                                <!-- related companies -->
+                                <ng-container matColumnDef="RelatedCompanies">
+                                    <th mat-header-cell
+                                        *matHeaderCellDef
+                                        mat-sort-header>
+                                        Companies
+                                    </th>
+                                    <td mat-cell
+                                        *matCellDef="let user">
+                                        <ng-container *ngFor="let company of user.Companies">
+                                            <div class="separator-margin"></div>
+                                            <div class="name-content">
+                                                <span class="name">{{company}}</span>
+                                            </div>
+                                            <div class="separator-margin"></div>
+                                        </ng-container>
+                                    </td>
+                                </ng-container>
+                                <!-- actions -->
+                                <ng-container matColumnDef="Actions">
+                                    <th mat-header-cell
+                                        *matHeaderCellDef
+                                        mat-sort-header>
+                                        Actions
+                                    </th>
+                                    <td mat-cell
+                                        *matCellDef="let user"
+                                        (click)="$event.stopPropagation()">
+                                        <ng-container>
+                                      
+                                            <button
+                                                    mat-flat-button="seeMyDetailsButton"
+                                                    class="mat-focus-indicator px-3 mb-1 mt-1 ml-2 mat-flat-button mat-button-base mat-primary blue-300"
+                                                    (click)="goToUser(user.Email)">
+                                                <span class="mat-button-wrapper"> See details </span>
+                                                <div matripple=""
+                                                     class="mat-ripple mat-button-ripple"></div>
+                                                <div class="mat-button-focus-overlay"></div>
+                                            </button>
+                                        </ng-container>
+                                    </td>
+
+                                </ng-container>
+
+                                <tr mat-header-row
+                                    *matHeaderRowDef="visitorsTableColumns"></tr>
+                                <tr class="user-row"
+                                    [ngClass]="{'selected': selectedUser && selectedUser.Email === row.Email}"
+                                    mat-row
+                                    *matRowDef="let row; columns: visitorsTableColumns;"
+                                    (click)="goToUser(row.Email)"></tr>
+
+                            </table>
+                            <mat-paginator (page)="scrollToTop()" #visitorsPaginator [pageSizeOptions]="[50, 100, 150]" showFirstLastButtons></mat-paginator>
+
+                        </ng-container>
+
+                        <ng-template #noVisitors>
+                            <div class="no-users">There are no visitors!</div>
+                        </ng-template>
+
+                    </div>
+                </ng-container>
+                <ng-container *ngIf="currentTableDataGroup === 'requests'">
+                    <!-- visitors requests list -->
+                    <div class="visitorsrequests-list">
+
+                        <ng-container *ngIf="requestsCount > 0; else noVisitorsRequests">
+
+                            <!-- Table -->
+                            <table mat-table
+                                   #RequestsSort='matSort'
+                                   [dataSource]="requestsDataSource"
+                                   [trackBy]="trackByFn"
+                                   matSort
+                                   matSortActive="EstimatedDateOfArrival" 
+                                   matSortDirection="asc">
+
+                                <!-- CampusName -->
+                                <!-- <ng-container matColumnDef="CampusName">
+                                <th mat-header-cell
+                                    *matHeaderCellDef>
+                                    Campus
+                                </th>
+                                <td mat-cell
+                                    *matCellDef="let visitorsrequest">
+                                    <div class="name-content">
+                                        <span class="name">{{visitorsrequest.CampusName}}</span>
+                                    </div>
+                                </td>
+                            </ng-container> -->
+
+                                <!-- UserHostEmail -->
+                                <ng-container matColumnDef="HostInfo">
+                                    <th mat-header-cell
+                                        *matHeaderCellDef
+                                        mat-sort-header>
+                                        Host info
+                                    </th>
+                                    <td mat-cell
+                                        *matCellDef="let visitorsrequest">
+                                        <a class="link name"
+                                           [routerLink]="['/users/user/' + visitorsrequest.UserHostEmail]">
+                                            {{ visitorsrequest.UserHostLName + ' ' + visitorsrequest.UserHostFName | titlecase }}
+                                        </a>
+                                        <!-- <div class="name-content">
+                                        <span
+                                              class="name">{{visitorsrequest.UserHostFName + ' ' + visitorsrequest.UserHostLName}}</span>
+                                    </div> -->
+                                        <div class="separator-margin"></div>
+                                        <div class="name-content">
+                                            <span class="email">{{visitorsrequest.UserHostEmail}}</span>
+                                        </div>
+                                    </td>
+
+                                </ng-container>
+
+                                <!-- UserHostCompanyName -->
+                                <ng-container matColumnDef="UserHostCompanyName">
+                                    <th mat-header-cell
+                                        *matHeaderCellDef
+                                        mat-sort-header>
+                                        Host company
+                                    </th>
+                                    <td mat-cell
+                                        *matCellDef="let visitorsrequest">
+                                        <div class="name-content">
+                                            <span class="name">{{visitorsrequest.UserHostCompanyName}}</span>
+                                        </div>
+                                    </td>
+                                </ng-container>
+
+                                <!-- VisitorEmail -->
+                                <ng-container matColumnDef="VisitorInfo">
+                                    <th mat-header-cell
+                                        *matHeaderCellDef
+                                        mat-sort-header>
+                                        Visitor info
+                                    </th>
+                                    <td mat-cell
+                                        *matCellDef="let visitorsrequest">
+                                        <div class="separator-margin"></div>
+                                        <!-- todo: insert LNAMe and FMame -->
+                                        <a class="link name"
+                                           [routerLink]="['/users/user/' + visitorsrequest.VisitorEmail]">
+                                            {{ visitorsrequest.VisitorLName + ' ' + visitorsrequest.VisitorFName | titlecase }}
+                                        </a>
+                                        <!-- <div class="name-content">
+                                        <span
+                                              class="name">{{visitorsrequest.VisitorFName + ' ' + visitorsrequest.VisitorLName}}</span>
+                                    </div> -->
+                                        <div class="separator-margin"></div>
+                                        <div class="name-content">
+                                            <span class="email">{{visitorsrequest.VisitorEmail}}</span>
+                                        </div>
+                                        <div class="separator-margin"></div>
+                                    </td>
+                                </ng-container>
+
+                                <!-- Arrival date -->
+                                <ng-container matColumnDef="EstimatedDateOfArrival">
+                                    <th mat-header-cell
+                                        *matHeaderCellDef
+                                        mat-sort-header>
+                                        Arrival date
+                                    </th>
+                                    <td mat-cell
+                                        *matCellDef="let visitorsrequest">
+                                        <div class="name-content">
+                                            <span class="name">{{formatDate(visitorsrequest.EstimatedDateOfArrival)}}</span>
+                                        </div>
+                                    </td>
+                                </ng-container>
+
+                                <!-- End date -->
+                                <ng-container matColumnDef="EstimatedReleaseDate">
+                                    <th mat-header-cell
+                                        *matHeaderCellDef
+                                        mat-sort-header>
+                                        End visit date
+                                    </th>
+                                    <td mat-cell
+                                        *matCellDef="let visitorsrequest">
+                                        <div class="name-content">
+                                            <span class="name">{{formatDate(visitorsrequest.EstimatedReleaseDate)}}</span>
+                                        </div>
+                                    </td>
+                                </ng-container>
+
+
+
+                                <!-- VisitorRequestStatus -->
+                                <ng-container matColumnDef="VisitorRequestStatus">
+                                    <th mat-header-cell
+                                        *matHeaderCellDef
+                                        mat-sort-header>
+                                        Request status
+                                    </th>
+                                    <td mat-cell
+                                        *matCellDef="let visitorsrequest">
+                                        <div class="name-content">
+                                            
+                                            <span *ngIf="visitorsrequest.VisitorRequestStatus === 'ACCEPTED'"
+                                                  class="inline-flex items-center font-bold text-xs px-2 py-2px rounded-full tracking-wide uppercase green-200">
+                                                <span class="w-2 h-2 rounded-full mr-2 bg-green"></span>
+                                                <span class="pr-2px leading-relaxed whitespace-no-wrap">accepted</span>
+                                            </span>
+
+                                            <span *ngIf="visitorsrequest.VisitorRequestStatus === 'PENDING'"
+                                                  class="inline-flex items-center font-bold text-xs px-2 py-2px rounded-full tracking-wide uppercase yellow-100">
+                                                <span class="w-2 h-2 rounded-full mr-2 bg-yellow"></span>
+                                                <span class="pr-2px leading-relaxed whitespace-no-wrap">pending</span>
+                                            </span>
+
+                                            <span *ngIf="visitorsrequest.VisitorRequestStatus === 'DENIED'"
+                                                  class="inline-flex items-center font-bold text-xs px-2 py-2px rounded-full tracking-wide uppercase red-200">
+                                                <span class="w-2 h-2 rounded-full mr-2 bg-red"></span>
+                                                <span class="pr-2px leading-relaxed whitespace-no-wrap">denied</span>
+                                            </span>
+
+                                        </div>
+                                    </td>
+                                </ng-container>
+
+                                <!-- Actions -->
+                                <ng-container matColumnDef="Actions">
+                                    <th mat-header-cell
+                                        *matHeaderCellDef
+                                        mat-sort-header>
+                                        Actions
+                                    </th>
+                                    <td mat-cell
+                                        *matCellDef="let visitorsrequest"
+                                        (click)="$event.stopPropagation()">
+                                        <ng-container
+                                                      *ngIf="!authorizationService.atLeastOneAuthorized(['UpdateVisitorRequest'])">
+                                            <button mat-flat-button="seeVisitorDetailsButton"
+                                                    class="mat-focus-indicator px-3 mb-1 mt-1 ml-2 mat-flat-button mat-button-base mat-primary blue-300"
+                                                    (click)="goToUser(visitorsrequest.VisitorEmail)">
+                                                <span class="mat-button-wrapper"> See visitor details </span>
+                                                <div matripple=""
+                                                     class="mat-ripple mat-button-ripple"></div>
+                                                <div class="mat-button-focus-overlay"></div>
+                                            </button>
+                                        </ng-container>
+                                        <ng-container
+                                                      *ngIf="this.authorizationService.isAuthorized('UpdateVisitorRequest') && visitorsrequest.VisitorRequestStatus != 'ACCEPTED'">
+                                            <button mat-flat-button="acceptButton"
+                                                    class="mat-focus-indicator px-3 mb-1 mt-1 ml-2 mat-flat-button mat-button-base mat-primary green-300"
+                                                    (click)="acceptVisitorRequest(visitorsrequest)">
+                                                <span class="mat-button-wrapper"> Accept </span>
+                                                <div matripple=""
+                                                     class="mat-ripple mat-button-ripple"></div>
+                                                <div class="mat-button-focus-overlay"></div>
+                                            </button>
+                                        </ng-container>
+                                        <ng-container
+                                                      *ngIf="this.authorizationService.isAuthorized('UpdateVisitorRequest') && visitorsrequest.VisitorRequestStatus != 'DENIED' ">
+                                            <button mat-flat-button="denyButton"
+                                                    class="mat-focus-indicator px-3 mb-1 mt-1 ml-2 mat-flat-button mat-button-base mat-primary orange-300"
+                                                    (click)="denyVisitorRequest(visitorsrequest)">
+                                                <span class="mat-button-wrapper"> Deny </span>
+                                                <div matripple=""
+                                                     class="mat-ripple mat-button-ripple"></div>
+                                                <div class="mat-button-focus-overlay"></div>
+                                            </button>
+                                        </ng-container>
+                                        <ng-container
+                                                      *ngIf="visitorsrequest.VisitorRequestStatus == 'PENDING' && (this.authorizationService.isAuthorized('DeleteVisitorRequest') && (!this.authorizationService.getFunctionalityMetadata('DeleteVisitorRequest').Specifications?.includes('MyRequests') || (this.authorizationService.isAuthorized('DeleteVisitorRequest') && this.authorizationService.getFunctionalityMetadata('DeleteVisitorRequest').Specifications?.includes('MyRequests') && visitorsrequest.UserHostEmail == this.authService.getCurrentUserEmail())))">
+                                            <button mat-flat-button="deleteButton"
+                                                    class="mat-focus-indicator px-3 mb-1 mt-1 ml-2 mat-flat-button mat-button-base mat-primary red-400"
+                                                    (click)="deleteVisitorRequest(visitorsrequest)">
+                                                <span class="mat-button-wrapper"> Delete </span>
+                                                <div matripple=""
+                                                     class="mat-ripple mat-button-ripple"></div>
+                                                <div class="mat-button-focus-overlay"></div>
+                                            </button>
+                                        </ng-container>
+
+
+
+
+
+                                    </td>
+
+                                </ng-container>
+
+                                <tr mat-header-row
+                                    *matHeaderRowDef="requestsTableColumns"></tr>
+                                <tr class="visitorsrequest-row"
+                                    [ngClass]="{'selected': selectedVisitorsRequest && selectedVisitorsRequest.VisitorRequestID === row.VisitorRequestID}"
+                                    mat-row
+                                    *matRowDef="let row; columns: requestsTableColumns;"></tr>
+                                <!-- (click)="goToVisitorsRequest(row.VisitorRequestID)" -->
+
+                            </table>
+                            <mat-paginator (page)="scrollToTop()" #requestPaginator [pageSizeOptions]="[50, 100, 150]" showFirstLastButtons></mat-paginator>
+
+                        </ng-container>
+
+                        <ng-template #noVisitorsRequests>
+                            <div class="no-visitorsrequests">There are no visitors requests!</div>
+                        </ng-template>
+
+                    </div>
+                </ng-container>
+
+            </div>
+
+        </mat-drawer-content>
+
+    </mat-drawer-container>
+
+</div>

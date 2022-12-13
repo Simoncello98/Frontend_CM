@@ -1,0 +1,733 @@
+<form [formGroup]="userForm"
+      [ngClass]="{'edit-mode': editMode}">
+
+    <!-- Actions -->
+    <div class="actions">
+
+        <button mat-icon-button
+                type="button"
+                *ngIf="!editMode && !changeEmail && (this.authorizationService.isAuthorized('UpdateUser') && !this.authorizationService.getFunctionalityMetadata('UpdateUser').Specifications?.includes('MyUser')) ||  !editMode && ( this.authorizationService.isAuthorized('UpdateUser') && this.authorizationService.getFunctionalityMetadata('UpdateUser').Specifications?.includes('MyUser') && this.user.Email == this.authService.getCurrentUserEmail())"
+                [matTooltip]="'Edit'"
+                (click)="toggleEditMode(true)">
+            <mat-icon [svgIcon]="'edit'"></mat-icon>
+        </button>
+
+        <!-- Cancel button -->
+        <button class="cancel-button"
+                mat-icon-button
+                type="button"
+                *ngIf="editMode && !newUser"
+                [matTooltip]="'Cancel'"
+                (click)="showSaveChangesAlert(false)">
+            <mat-icon [svgIcon]="'cancel'"></mat-icon>
+        </button>
+
+        <!-- Cancel button create-edit user -->
+        <button class="cancel-button"
+                mat-icon-button
+                type="button"
+                *ngIf="editMode && newUser"
+                [matTooltip]="'Cancel'"
+                (click)="showSaveChangesAlert(true)">
+            <mat-icon [svgIcon]="'cancel'"></mat-icon>
+        </button>
+
+        <!-- Save button -->
+        <button mat-icon-button
+                type="button"
+                *ngIf="editMode && !newUser"
+                [matTooltip]="'Save'"
+                appDebounceClick
+                (debounceClick)="updateUser()">
+            <mat-icon [svgIcon]="'save'"></mat-icon>
+        </button>
+
+        <!-- create User button -->
+        <button mat-icon-button
+                type="button"
+                *ngIf="editMode && newUser"
+               
+                [matTooltip]="'Create user'"
+                appDebounceClick
+                (debounceClick)="createUser()">
+            <mat-icon [svgIcon]="'cloud_upload'"></mat-icon>
+        </button>
+
+        <!-- Delete button -->
+        <button mat-icon-button
+                type="button"
+                *ngIf="editMode && !newUser && authorizationService.isAuthorized('DeleteUser')"
+                [matTooltip]="'Delete'"
+                (click)="deleteUser()">
+            <mat-icon [svgIcon]="'delete'"></mat-icon>
+        </button>
+
+        <!-- Close button -->
+        <button mat-icon-button
+                type="button"
+                *ngIf="!editMode"
+                [matTooltip]="'Close'"
+                [routerLink]="['../../']">
+            <mat-icon [svgIcon]="'close'"></mat-icon>
+        </button>
+
+    </div>
+
+    <!-- Avatar and Name -->
+    <div class="avatar-and-name">
+
+        <div class="avatar">
+
+            <div class="upload"
+                 *ngIf="editMode">
+                <input id="avatar-file-input"
+                       type="file"
+                       [multiple]="false"
+                       [accept]="'image/jpeg, image/png'"
+                       (change)="uploadAvatar(avatarFileInput.files, $event)"
+                       #avatarFileInput>
+                <label for="avatar-file-input"
+                       matRipple>
+                    <mat-icon [svgIcon]="'photo_camera'"></mat-icon>
+                </label>
+            </div>
+
+            <div class="remove"
+                 *ngIf="editMode">
+                <button mat-icon-button
+                        (click)="removeAvatar()">
+                    <mat-icon [svgIcon]="'delete'"></mat-icon>
+                </button>
+            </div>
+
+            <img *ngIf="user.UserPhoto"
+                 [src]="user.UserPhoto | S3UrlAppendSignature | async"
+                 #avatar>
+
+            <div class="no-avatar"
+                 *ngIf="!user.UserPhoto">
+                {{user.FName?.charAt(0)}}
+            </div>
+
+        </div>
+
+        <!-- View -->
+        <div class="view"
+             *ngIf="user.FName && !editMode">
+            <div class="name">{{ user.FName + ' ' + user.LName | titlecase }}</div>
+        </div>
+    </div>
+
+
+    <!-- FName -->
+    <div class="address"
+         *ngIf="editMode">
+
+        <!-- <mat-icon *ngIf="!editMode"
+                  class="icon"
+                  [svgIcon]="'account_box'"></mat-icon> -->
+
+        <!-- View -->
+        <!-- <div class="view"
+             *ngIf="!editMode">
+            {{user.FName}}
+        </div> -->
+
+        <!-- Edit -->
+        <div class="edit"
+             *ngIf="editMode">
+            <mat-form-field class="treo-mat-no-subscript">
+                <mat-label>First name</mat-label>
+                <input matInput
+                       [formControlName]="'FName'"
+                       [value]="FirstName | titlecase"
+                       [(ngModel)]="FirstName"
+                       [placeholder]="'First Name'"
+                       [spellcheck]="false">
+            </mat-form-field>
+        </div>
+
+    </div>
+
+    <!-- LName -->
+    <div class="address"
+         *ngIf="editMode">
+        <!-- <mat-icon class="icon"
+                  [svgIcon]="'account_box'"></mat-icon> -->
+
+        <!-- View -->
+        <!-- <div class="view"
+             *ngIf="!editMode">
+            {{user.LName}}
+        </div> -->
+        <!-- Edit -->
+        <div class="edit"
+             *ngIf="editMode">
+            <mat-form-field class="treo-mat-no-subscript">
+                <mat-label>Last name</mat-label>
+                <input matInput
+                       [formControlName]="'LName'"
+                       [value]="LastName | titlecase"
+                       [(ngModel)]="LastName"
+                       [placeholder]="'Last Name'"
+                       [spellcheck]="false">
+            </mat-form-field>
+        </div>
+    </div>
+
+    <!-- Email -->
+    <div class="address"
+         *ngIf="user.Email || editMode || changeEmail">
+        <mat-icon *ngIf="!editMode"
+                  class="icon"
+                  [svgIcon]="'email'"></mat-icon>
+
+        <!-- View -->
+        <div class="view"
+             *ngIf="!editMode && !changeEmail">
+            <mat-label>Email</mat-label>
+            <span> {{ user.Email | lowercase }}</span>
+
+        </div>
+        <!-- Edit -->
+        <div class="edit"
+             *ngIf="editMode && newUser && !changeEmail">
+            <!-- New user -->
+            <!-- TODO: add tooltip -->
+            <!-- <button class="remove-email-field" style="margin-left: auto; margin-bottom: -36px;" mat-icon-button>
+                <mat-icon [svgIcon]="'info'" [matTooltip]="'Without a specified Email, the temporary password will be CMPSW123'"></mat-icon>
+            </button> -->
+            <div class="edit-email">
+                <mat-form-field class="treo-mat-no-subscript">
+                    <mat-label>Email</mat-label>
+                    <input matInput
+                           [formControlName]="'Email'"
+                           [value]="UserEmail | lowercase"
+                           [(ngModel)]="UserEmail"
+                           [placeholder]="'Email'"
+                           [spellcheck]="false">
+                </mat-form-field>
+                <p>Leave this field blank to auto-generate your email</p>
+            </div>
+        </div>
+        <div class="edit"
+             *ngIf="editMode && !newUser && !changeEmail">
+            <!-- User exist and you cannot change email -->
+            <mat-form-field class="treo-mat-no-subscript readonly-text">
+                <mat-label>Email</mat-label>
+                <input matInput
+                       [formControlName]="'Email'"
+                       [value]="UserEmail | lowercase"
+                       [(ngModel)]="UserEmail"
+                       [placeholder]="'Email'"
+                       [spellcheck]="false"
+                       [readonly]="true">
+            </mat-form-field>
+        </div>
+        <div class="edit"
+             *ngIf="changeEmail && !editMode && !newUser">
+            <!--  -->
+            <mat-form-field class="treo-mat-no-subscript">
+                <mat-label>Email</mat-label>
+                <input matInput
+                       [formControlName]="'Email'"
+                       [value]="UserEmail | lowercase"
+                       [(ngModel)]="UserEmail"
+                       [placeholder]="'Email'"
+                       [spellcheck]="false">
+            </mat-form-field>
+        </div>
+    </div>
+
+
+    <!-- SocialNumber -->
+    <div class="address"
+         *ngIf="user.SocialNumber || editMode">
+        <mat-icon *ngIf="!editMode"
+                  class="icon"
+                  [svgIcon]="'credit_card'"></mat-icon>
+
+        <!-- View -->
+        <div class="view"
+             *ngIf="!editMode">
+            <mat-label>Social Security Number (CF)</mat-label>
+            <span> {{ user.SocialNumber | uppercase }}</span>
+
+        </div>
+        <!-- Edit -->
+        <div class="edit"
+             *ngIf="editMode">
+            <mat-form-field class="treo-mat-no-subscript">
+                <mat-label>Social Security Number (CF)</mat-label>
+                <input matInput
+                       [formControlName]="'SocialNumber'"
+                       [value]="SocialNumber | uppercase"
+                       [(ngModel)]="SocialNumber"
+                       [placeholder]="'Social Security Number (CF)'"
+                       [spellcheck]="false">
+            </mat-form-field>
+        </div>
+    </div>
+
+    <!-- TelephoneNumber -->
+    <div class="address"
+         *ngIf="user.TelephoneNumber || editMode">
+        <mat-icon *ngIf="!editMode"
+                  class="icon"
+                  [svgIcon]="'phone'"></mat-icon>
+
+        <!-- View -->
+        <div class="view"
+             *ngIf="!editMode">
+            <mat-label>Telephone number</mat-label>
+            <span>{{user.TelephoneNumber}}</span>
+
+        </div>
+        <!-- Edit -->
+        <div class="edit"
+             *ngIf="editMode">
+            <mat-form-field class="treo-mat-no-subscript">
+                <mat-label>Telephone number</mat-label>
+                <input matInput
+                       [formControlName]="'TelephoneNumber'"
+                       [placeholder]="'Telephone Number'"
+                       [spellcheck]="false">
+            </mat-form-field>
+        </div>
+    </div>
+
+
+
+    <!-- CardID -->
+    <div class="address"
+         *ngIf="user.CardID || editMode">
+        <mat-icon *ngIf="!editMode"
+                  class="icon"
+                  [svgIcon]="'credit_card'"></mat-icon>
+
+        <!-- View -->
+        <div class="view"
+             *ngIf="!editMode">
+            <mat-label>Card ID</mat-label>
+            <span>{{ user.CardID | uppercase }}</span>
+
+        </div>
+        <!-- Edit -->
+        <div class="edit"
+             *ngIf="editMode">
+            <mat-form-field class="treo-mat-no-subscript">
+                <mat-label>Card ID</mat-label>
+                <input matInput
+                       [formControlName]="'CardID'"
+                       [value]="CardID | uppercase"
+                       [(ngModel)]="CardID"
+                       [placeholder]="'Card ID'"
+                       [spellcheck]="false">
+            </mat-form-field>
+        </div>
+    </div>
+
+
+    <!-- PlaceOfBirth -->
+    <div class="address"
+         *ngIf="user.PlaceOfBirth || editMode">
+        <mat-icon *ngIf="!editMode"
+                  class="icon"
+                  [svgIcon]="'heroicons_outline:home'"></mat-icon>
+
+        <!-- View -->
+        <div class="view"
+             *ngIf="!editMode">
+            <mat-label>Place of birth</mat-label>
+            <span>{{ user.PlaceOfBirth | titlecase }}</span>
+
+        </div>
+        <!-- Edit -->
+        <div class="edit"
+             *ngIf="editMode">
+            <mat-form-field class="treo-mat-no-subscript">
+                <mat-label>Place of birth</mat-label>
+                <input matInput
+                       [formControlName]="'PlaceOfBirth'"
+                       [placeholder]="'Place Of Birth'"
+                       [value]="PlaceOfBirth | titlecase"
+                       [(ngModel)]="PlaceOfBirth"
+                       [spellcheck]="false">
+            </mat-form-field>
+        </div>
+    </div>
+
+
+    <!-- Birthday -->
+    <div class="birthday"
+         *ngIf="user.DateOfBirth || editMode">
+
+        <mat-icon *ngIf="!editMode"
+                  class="icon"
+                  [svgIcon]="'cake'"></mat-icon>
+
+        <!-- View -->
+        <div class="view"
+             *ngIf="!editMode">
+            <mat-label>Date of birth</mat-label>
+            <span>{{user.DateOfBirth | date:'longDate'}}</span>
+
+        </div>
+
+        <!-- Edit -->
+        <div class="edit"
+             *ngIf="editMode">
+
+            <mat-form-field class="treo-mat-no-subscript">
+                <mat-label>Date of birth</mat-label>
+                <input matInput
+                       [matDatepicker]="birthdayDatepicker"
+                       [formControlName]="'DateOfBirth'"
+                       [placeholder]="'Birthday'"
+                       readonly>
+                <mat-datepicker-toggle matSuffix
+                                       [for]="birthdayDatepicker">
+                </mat-datepicker-toggle>
+                <mat-datepicker #birthdayDatepicker></mat-datepicker>
+            </mat-form-field>
+
+        </div>
+    </div>
+
+    <div class="emails"
+         *ngIf="user.CognitoGroupName || (editMode && this.authorizationService.isAuthorized('ListCognitoGroupsName'))">
+
+        <mat-icon *ngIf="!editMode"
+                  class="icon"
+                  [svgIcon]="'supervised_user_circle'"></mat-icon>
+
+        <!-- View -->
+        <div class="view"
+             *ngIf="!editMode">
+            <mat-label>Group name</mat-label>
+            <span>{{user.CognitoGroupName}}</span>
+
+        </div>
+
+
+        <!-- Edit -->
+        <div class="edit"
+             *ngIf="editMode && this.authorizationService.isAuthorized('ListCognitoGroupsName') ">
+
+            <div class="email">
+
+                <select-from-api [apiPromise]="CognitoGroupsPromise"
+                                 [keyLocale]="'CognitoGroupName'"
+                                 [keyOutput]="'CognitoGroupName'"
+                                 [multiple]="false"
+                                 [FormControl]="userForm.get('CognitoGroupName')"
+                                 [label]="'User Group'"
+                                 [required]="true">
+                </select-from-api>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <ng-container *ngIf="this.campusRegulationDocs.length > 0">
+        <div class="separator-margin"></div>
+        <mat-divider class="mt-6 mb-6"></mat-divider>
+        <p class="text-lg font-medium">Regulation documents</p>
+        <ng-container
+                      *ngFor="let doc of userForm.get('SignedRegulations')['controls']; let i = index; let first = first; let last = last;">
+            <!-- DocCheckBox -->
+            <div class="emails">
+
+                <mat-icon *ngIf="!editMode && doc.get('Signed').value == false"
+                          class="icon"
+                          [svgIcon]="'dripicons:document'"></mat-icon>
+
+                <mat-icon *ngIf="!editMode && doc.get('Signed').value == true"
+                          class="icon"
+                          [svgIcon]="'feather:check-square'"></mat-icon>
+
+
+                <!-- View -->
+                <div class="view"
+                     *ngIf="!editMode ">
+                    <mat-label>{{doc.get('DocumentTitle').value}}</mat-label>
+                    <span> {{doc.get('Signed').value == true ? 'Signed' : 'Unsigned'}}</span>
+                </div>
+
+                <!-- Edit -->
+                <div class="edit"
+                     *ngIf="editMode">
+
+                    <div class="edit"
+                         *ngIf="editMode">
+
+                        <mat-checkbox class="mb-2"
+                                      [formControl]="doc.get('Signed')"
+                                      [checked]="true"
+                                      [color]="'primary'">
+                            {{doc.get('DocumentTitle').value}}
+                        </mat-checkbox>
+
+                    </div>
+                </div>
+            </div>
+
+        </ng-container>
+
+    </ng-container>
+
+
+    <div class="separator-margin"></div>
+
+    <!--Simone : added if on "i'm authorized to do it" -->
+    <ng-container *ngIf="!editMode || this.authorizationService.isAuthorized('UpdateCampusCompanyUserRelationship')">
+        <mat-divider class="mt-6 mb-6"></mat-divider>
+        <p class="text-lg font-medium">Companies</p>
+        <ng-container class="email"
+                      *ngFor="let company of userForm.get('campusXCompanyXUserForm')['controls']; let i = index; let first = first; let last = last; trackBy: trackByFn">
+            <!-- 1 is the value of DELETE in the RelationshipStatus ENUM -->
+            <ng-container>
+                <!-- FName -->
+                <div class="emails"
+                     *ngIf="company.get('CompanyName').value || editMode">
+
+                    <mat-icon *ngIf="!editMode"
+                              class="icon"
+                              [svgIcon]="'heroicons_outline:office-building'"></mat-icon>
+
+                    <!-- View -->
+                    <div class="view"
+                         *ngIf="!editMode">
+                        <mat-label>Company name</mat-label>
+
+
+                        <a class="link"
+                           [routerLink]="['/companies/' + company.get('CompanyName').value]">
+                            {{company.get('CompanyName').value}}
+                        </a>
+                    </div>
+
+
+                    <!-- Edit -->
+                    <div class="edit"
+                         *ngIf="editMode">
+
+                        <div class="email">
+
+                            <ng-container *ngIf="company.get('_operation').value === 0">
+                                <select-from-api [apiPromise]="CompanyNamePromise"
+                                                 [keyLocale]="'CompanyName'"
+                                                 [keyOutput]="'CompanyName'"
+                                                 [multiple]="false"
+                                                 [FormControl]="company.get('CompanyName')"
+                                                 [label]="'Company name'"
+                                                 [filterKeys]="alreadyAssociatedCompanies"
+                                                 [required]="true"></select-from-api>
+
+                            </ng-container>
+
+
+                            <ng-container *ngIf="company.get('_operation').value !== 0">
+                                <mat-form-field class="treo-mat-no-subscript readonly-text">
+                                    <mat-label>Company name</mat-label>
+                                    <input matInput
+                                           [formControl]="company.get('CompanyName')"
+                                           [placeholder]="'Company Name'"
+                                           [readonly]="true"
+                                           [spellcheck]="false">
+                                </mat-form-field>
+                            </ng-container>
+
+
+                            <div class="actions">
+
+                                <button *ngIf="companiesCount > 1 || company.get('_unsavedCompany').value == true"
+                                        class="remove-email-field"
+                                        mat-icon-button
+                                        (click)="removeCompany(i)"
+                                        matTooltip="Remove">
+                                    <mat-icon [svgIcon]="'cancel'"></mat-icon>
+                                </button>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- FName -->
+                <div class="address"
+                     *ngIf="company.get('CompanyEmailAlias').value || editMode">
+
+                    <mat-icon *ngIf="!editMode"
+                              class="icon"
+                              [svgIcon]="'email'"></mat-icon>
+
+                    <!-- View -->
+                    <div class="view"
+                         *ngIf="!editMode">
+                        <mat-label>Company email alias</mat-label>
+                        <span>{{company.get('CompanyEmailAlias').value}}</span>
+
+                    </div>
+
+                    <!-- Edit -->
+                    <div class="edit"
+                         *ngIf="editMode">
+                        <mat-form-field class="treo-mat-no-subscript">
+                            <mat-label>Company email alias</mat-label>
+                            <input matInput
+                                   [formControl]="company.get('CompanyEmailAlias')"
+                                   [placeholder]="'Company Email Alias'"
+                                   [spellcheck]="false">
+                        </mat-form-field>
+                    </div>
+
+                </div>
+
+                <!-- FName -->
+                <div class="address"
+                     *ngIf="company.get('UserSerialID').value || editMode">
+
+                    <mat-icon *ngIf="!editMode"
+                              class="icon"
+                              [svgIcon]="'credit_card'"></mat-icon>
+
+                    <!-- View -->
+                    <div class="view"
+                         *ngIf="!editMode">
+                        <mat-label>User serial ID (Ges.Per)</mat-label>
+                        <span>{{company.get('UserSerialID').value}}</span>
+
+                    </div>
+
+                    <!-- Edit -->
+                    <div class="edit"
+                         *ngIf="editMode"
+                         style="flex-direction: column;">
+                        <mat-form-field class="treo-mat-no-subscript"
+                                        matTooltip="Fill in this field only for the company that bills the user">
+                            <mat-label>User serial ID</mat-label>
+                            <input matInput
+                                   [maxLength]="userIDMaxLen"
+                                   [formControl]="company.get('UserSerialID')"
+                                   [placeholder]="'User serial ID'"
+                                   [spellcheck]="false">
+                        </mat-form-field>
+                    </div>
+
+                </div>
+
+                <!-- EmploymentContractHours -->
+                <div class="address"
+                     *ngIf="company.get('EmploymentContractHours').value || editMode">
+
+                    <mat-icon *ngIf="!editMode"
+                              class="icon"
+                              [svgIcon]="'heroicons_outline:clock'"></mat-icon>
+
+                    <!-- View -->
+                    <div class="view"
+                         *ngIf="!editMode">
+                        <mat-label>Weekly contract hours</mat-label>
+                        <span>
+                            {{ company.get('EmploymentContractHours').value 
+                                ? company.get('EmploymentContractHours').value === 1
+                                    ? company.get('EmploymentContractHours').value + ' Hr.'
+                                    : company.get('EmploymentContractHours').value + ' Hrs.'
+                                : '-'
+                            }}
+                        </span>
+                    </div>
+
+                    <!-- Edit -->
+                    <div class="edit"
+                         *ngIf="editMode"
+                         style="flex-direction: column;">
+                        <mat-form-field>
+                            <mat-label>Weekly contract hours</mat-label>
+                            <input matInput
+                                    [formControl]="company.get('EmploymentContractHours')"
+                                    class="contract-hours"
+                                    type="number"
+                                    min="0"
+                                    max="84"
+                                    required="true"
+                                    [value]="company?.get('EmploymentContractHours').value | number: '1.0-0'"
+                                    placeholder="Weekly contract hours">
+                            <span matSuffix>
+                                {{
+                                company?.get('EmploymentContractHours').value
+                                |
+                                i18nPlural: {
+                                '=1': 'Hr.',
+                                'other': 'Hrs.'
+                                }
+                                }}
+                            </span>
+                        </mat-form-field>
+                    </div>
+                </div>
+
+                <!-- CompanyRole -->
+                <div class="emails"
+                     *ngIf="!user.IsVisitor && (company.get('_adminRole').value || editMode)">
+
+                    <mat-icon *ngIf="!editMode"
+                              class="icon"
+                              [svgIcon]="'settings'"></mat-icon>
+
+                    <!-- View -->
+                    <div class="view"
+                         *ngIf="!editMode && company.get('_adminRole').value">
+                        <mat-label>Company Role</mat-label>
+                        <span>Admin</span>
+                    </div>
+
+                    <!-- Edit -->
+                    <div class="edit"
+                         *ngIf="editMode">
+
+                        <div class="edit"
+                             *ngIf="editMode">
+
+                            <mat-checkbox class="mb-2"
+                                          [formControl]="company.get('_adminRole')"
+                                          [checked]="true"
+                                          [color]="'primary'">
+                                Admin role
+                            </mat-checkbox>
+
+                        </div>
+                    </div>
+                </div>
+
+                <mat-divider *ngIf="last == company"
+                             class="mt-6 mb-6"></mat-divider>
+                <div class="separator-margin"></div>
+            </ng-container>
+        </ng-container>
+
+    </ng-container>
+
+
+    <mat-divider *ngIf="editMode && this.authorizationService.isAuthorized('CreateCampusCompanyUserRelationship')"
+                 class="mt-6 mb-6"></mat-divider>
+    <div class="flex items-center mt-auto"
+         *ngIf="editMode && this.authorizationService.isAuthorized('CreateCampusCompanyUserRelationship')">
+        <button class="mt-2 mb-2"
+                mat-stroked-button
+                [color]="'primary'"
+                (click)="addCompany(true)"
+                [matTooltip]="!userForm.get('Email').value ? 'You need to set an eMail first' : ''"
+                [disabled]="!userForm.get('Email').value || !userForm.get('FName').value || !userForm.get('LName').value">
+            <mat-icon [svgIcon]="'note_add'"></mat-icon>
+            <span class="ml-3">Add Company</span>
+        </button>
+    </div>
+
+</form>

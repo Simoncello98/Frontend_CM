@@ -1,0 +1,119 @@
+@import "treo";
+
+message-dialog {  
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr; 
+    grid-template-rows: 0.3fr 2fr 1fr; 
+    gap: 0px 0px;
+    grid-auto-flow: row;
+    grid-template-areas:
+      "Header Header Header"
+      "Content Content Content"
+      "Files Files Ack"
+      "FilesNumber Buttons Buttons";
+  }
+  
+.Header {
+    grid-area: Header; 
+    height: 100%;
+    width: 100%;
+    overflow-y: auto;
+    text-align: start;
+}
+
+.Content { 
+    grid-area: Content; 
+    height: 100%;
+    padding: 10px;
+    margin-top: 2%;
+    border: 1px black;
+    overflow-y: auto;
+    background-color: white;
+    color: black;
+}
+
+.Files {
+    grid-area: Files; 
+    margin-top: 20px;
+    
+    > button {
+        width: 40%;
+        margin-left: 10px;
+    }
+}
+
+.Ack {
+    display: grid; 
+    grid-template-columns: 1fr 1fr 1fr; 
+    grid-template-rows: 1fr 1fr 1fr; 
+    gap: 0px 0px; 
+    grid-template-areas: 
+        ". . ."
+        "TextAck TextAck TextAck"
+        ". . ."; 
+    grid-area: Ack; 
+}
+
+.TextAck { 
+    grid-area: TextAck; 
+    text-align: center;
+}
+
+.FilesNumber {
+    grid-area: FilesNumber;
+    text-align: start;
+    align-items: center;
+}
+
+.Buttons {
+    grid-area: Buttons; 
+    width: 100%;
+    text-align: end;
+}
+  
+/*
+    THEMING
+*/
+
+@include treo-theme {
+
+    $btn_close_background: map-get($map: $mat-red, $key: 400);
+
+    .actionButtons {
+        width: auto;
+        height: auto;
+    }
+
+    .Files {
+        overflow: hidden;
+        max-width: 100%;
+
+        > .mat-chip-list > .mat-chip-list-wrapper {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            max-width: 90%;
+            overflow-x: auto;
+            width: 90%;
+    
+            .attached_file {
+                margin-top: 10px;
+                width: max-content;
+                height: 25px;
+                margin-right: 5px;
+
+                > a {
+                    width: max-content;
+                    display: inline;
+                    white-space: nowrap;
+                }
+    
+                > mat-icon {
+                    margin-right: 10px;
+                }
+                
+            }
+        }
+    }
+}

@@ -1,0 +1,24 @@
+<mat-form-field appearance="fill">
+    <mat-label *ngIf="label">{{label}}</mat-label>
+    <mat-select [formControl]="itemsMultiSelectFormCtrl"
+                [placeholder]="placeholder"
+                [multiple]="multiple"
+                [required]="required"
+                [disabled]="disabled"
+                #multiSelect>
+        <mat-option>
+            <ngx-mat-select-search [formControl]="multiFilterFormCtrl"
+                                   placeholderLabel="Find item..."></ngx-mat-select-search>
+        </mat-option>
+        <mat-option *ngFor="let item of filteredItems$ | async"
+                    [value]="item"
+                    [matTooltip]="showMatTooltip && item[keyTooltip] ? item[keyTooltip] : ''">
+            <span>{{item[keyLocale] === '*'? 'Select All' : item[keyLocale]+' '}}</span>
+            <div>
+                <ng-container *ngFor="let key of infoKeys"><span class="info">{{item[key] + ' '}}</span></ng-container>
+            </div>
+        </mat-option>
+    </mat-select>
+   
+
+</mat-form-field>

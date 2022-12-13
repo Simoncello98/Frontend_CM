@@ -1,0 +1,29 @@
+<h1 mat-dialog-title>Crop the image</h1>
+
+<image-cropper [imageChangedEvent]="imageChangedEvent"
+               [maintainAspectRatio]="true"
+               [aspectRatio]="data.aspectRatio"
+               [resizeToWidth]="data.resolution"
+               format="png"
+               (imageCropped)="imageCropped($event)"
+               (imageLoaded)="imageLoaded()"
+               (cropperReady)="cropperReady()"
+               (loadImageFailed)="loadImageFailed()"></image-cropper>
+
+<div mat-dialog-actions>
+
+
+
+
+
+    <button mat-button
+            (click)="closeDialog()">Discard</button>
+
+    <button class="mt-2 mb-2"
+            mat-stroked-button
+            [color]="'primary'"
+            (click)="cropIt()">
+        <mat-icon [svgIcon]="'mat_outline:save_alt'"></mat-icon>
+        <span class="ml-1">Crop and save</span>
+    </button>
+</div>

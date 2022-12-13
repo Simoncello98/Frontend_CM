@@ -1,0 +1,23 @@
+<h1 mat-dialog-title>{{title}}</h1>
+<div class="font-medium mb-6">
+    <p class="message-p"
+       [innerHTML]="message"></p>
+</div>
+<div mat-dialog-actions
+     class="rightAligned">
+    <button *ngIf="!singleButton"
+            class="mt-2 mb-2"
+            mat-stroked-button
+            [color]="'primary'"
+            (click)="closeDialog(false)">
+        <mat-icon [svgIcon]="'cancel'"></mat-icon>
+        <span class="ml-1">{{ negativeButton }}</span>
+    </button>
+    <!-- Discard -->
+    <button class="discard-button"
+            mat-button
+            (click)="closeDialog(true)">
+        <!-- <mat-icon [svgIcon]="'confirm'"></mat-icon> -->
+        <span>{{ positiveButton }}</span>
+    </button>
+</div>

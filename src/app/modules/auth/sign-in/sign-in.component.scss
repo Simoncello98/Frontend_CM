@@ -1,0 +1,24 @@
+@import 'treo';
+
+auth-sign-in {
+
+    .content-layout {
+        align-items: center;
+        justify-content: center;
+    }
+    .subtitle {
+        font-size: 20px;
+    }
+
+    .title{
+        font-size: 36px;
+        /*font-family: -webkit-pictograph;*/
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Theming
+// -----------------------------------------------------------------------------------------------------
+@include treo-theme {
+
+}

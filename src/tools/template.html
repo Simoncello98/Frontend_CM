@@ -1,0 +1,22 @@
+<!-- REPLACE_ME -->
+<div class="address"
+     *ngIf="log.REPLACE_ME || editMode">
+    <mat-icon class="icon"
+              [svgIcon]="'room'"></mat-icon>
+
+    <!-- View -->
+    <div class="view"
+         *ngIf="!editMode">
+        {{log.REPLACE_ME}}
+    </div>
+    <!-- Edit -->
+    <div class="edit"
+         *ngIf="editMode">
+        <mat-form-field class="treo-mat-no-subscript">
+            <input matInput
+                   [formControlName]="'REPLACE_ME'"
+                   [placeholder]="'REPLACE_ME'"
+                   [spellcheck]="false">
+        </mat-form-field>
+    </div>
+</div>

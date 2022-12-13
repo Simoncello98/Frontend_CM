@@ -1,0 +1,44 @@
+@import "treo";
+
+:host {
+    width: 100%;
+    mat-form-field {
+        width: 100%;
+    }
+}
+.mat-option{
+    font-size: inherit;
+    line-height: 1.5em !important;
+    height: 4em !important;
+}
+.mat-select-panel{
+    font-size: inherit;
+    line-height: 1.5em !important;
+    height: 4em !important;
+}
+.info{
+    color: darkgray;
+}
+.mat-select-search-no-entries-found{
+    //display: none;
+    //visibility: hidden;
+    color: transparent !important;
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Theming
+// -----------------------------------------------------------------------------------------------------
+// @include treo-theme {
+//     $primary: map-get($theme, primary);
+
+//     mailbox-compose {
+//         .header {
+//             background: map-get($primary, default);
+//             color: map-get($primary, default-contrast);
+
+//             .mat-icon {
+//                 color: map-get($primary, default-contrast);
+//             }
+//         }
+//     }
+// }

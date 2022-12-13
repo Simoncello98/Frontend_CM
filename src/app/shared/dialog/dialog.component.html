@@ -1,0 +1,82 @@
+<div class="Header">
+    <h1 mat-dialog-title id="title">{{data.message.Title}}</h1>
+</div>
+<div class="Content">
+    <span #dialogContent></span>
+</div>
+<div class="Files">
+    <span><b>Attached files:</b></span>
+    <ng-container *ngIf="data.filesInfo.length != 0; else noAttachment">
+
+        <!--Download All Button-->
+        <ng-container *ngIf="data.filesInfo.length != 1;">
+            <button 
+                mat-button
+                color="primary"
+                background-color="primary"
+                (click)="downloadAllFile(data.filesInfo)">
+                Download All
+            </button>
+        </ng-container>
+        
+        <!--Attached files chip-->
+        <mat-chip-list>
+            <mat-chip class="attached_file" *ngFor="let item of data.filesInfo">
+                <mat-icon svgIcon="mat_outline:cloud_download"></mat-icon>
+                <a (click)="downloadFile(item.Name, item.URL)"> {{item.Name}} </a>
+            </mat-chip>
+        </mat-chip-list>
+    </ng-container>
+
+    <!--No file-->
+    <ng-template #noAttachment>
+        <br><span>No attached files</span>
+    </ng-template>
+</div>
+
+<div class="FilesNumber">
+    <ng-container *ngIf="poolSize > 0 && getType() === 'boot';">
+        <span>{{actualNumber}} of {{poolSize}}</span>
+    </ng-container>
+</div>
+
+    <!--Mandatory Ack-->
+<div class="Ack">
+    <div class="TextAck">
+        <ng-container *ngIf="data.message.MandatoryAck">
+            <ng-container *ngIf="getType() === 'default'; else bootAck">
+                <mat-checkbox
+                    disabled
+                    [checked]="data.message.MandatoryAck">
+                    Acked
+                </mat-checkbox>
+            </ng-container>
+            <ng-template #bootAck>
+                <mat-checkbox
+                    (change)="onCheckChange($event)"
+                    [checked] = "false"
+                    color="primary">
+                    I Agree
+                </mat-checkbox>
+            </ng-template>
+        </ng-container>
+    </div>
+</div>
+<div class="Buttons">
+    <ng-container *ngIf="getType() === 'default'; else bootDialog">
+        <button class="close-button"
+            mat-button color="warn"
+            (click)="close()">
+            <span>Close</span>
+        </button>
+    </ng-container>
+
+    <ng-template #bootDialog>
+        <button class="confirm-button"
+            mat-button
+            (click)="sendConfirmation(data.message)"
+            color="primary">
+            <span>Confirm</span>
+        </button>
+    </ng-template>
+</div>

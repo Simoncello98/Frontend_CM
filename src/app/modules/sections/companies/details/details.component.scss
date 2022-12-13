@@ -1,0 +1,978 @@
+@import "treo";
+
+companies-details {
+    display: flex;
+    flex: 1 1 auto;
+
+    form {
+        position: relative;
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        padding: 56px 64px 64px 80px;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+
+        @include treo-breakpoint("xs") {
+            padding: 24px 48px 40px 80px;
+        }
+
+        .view {
+            display: flex;
+            flex-direction: column;
+            mat-label {
+                color: #8b8b8b;
+                top: 0;
+                margin-top: 0;
+                font-weight: 500;
+            }
+        }
+
+        &.edit-mode {
+            padding: 56px 80px 64px 80px;
+
+            @include treo-breakpoint("xs") {
+                padding: 24px 80px 40px 40px;
+            }
+
+            > .actions {
+                @include treo-breakpoint("(max-width: 480px)") {
+                    margin: 0 -56px 24px -16px;
+                }
+            }
+
+            > .emails,
+            > .phone-numbers,
+            > .notes {
+                .icon {
+                    margin-top: 12px;
+                }
+            }
+
+            @include treo-breakpoint("xs") {
+                > .job,
+                > .emails,
+                > .phone-numbers,
+                > .address,
+                > .birthday,
+                > .notes {
+                    .icon {
+                        display: none !important;
+                    }
+                }
+            }
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 0 -12px 0 0;
+
+            h5 {
+                margin: 0;
+            }
+
+            + .mat-divider {
+                margin: 24px 0;
+            }
+        }
+
+        > .actions {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            top: 32px;
+            right: 24px;
+
+            @include treo-breakpoint("(max-width: 480px)") {
+                position: relative;
+                justify-content: flex-end;
+                margin: 0 -24px 16px 0;
+                top: auto;
+                right: auto;
+            }
+
+            .cancel-button {
+                margin-right: auto;
+            }
+        }
+
+        > .avatar-and-name {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            margin-top: 40px;
+
+            mat-label{
+                margin-left: 5px;
+                top: 0;
+                margin-top: 0;
+                font-weight: 500;
+
+            }
+
+            .avatar {
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 350px;
+                //min-height: 200px;
+                //max-height: 350px;
+                height: 220px;
+                //margin-bottom: 20px;
+                overflow: hidden;
+                margin-top: 10px;
+                border-radius: 5px;
+
+                &:before {
+                    content: "";
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    bottom: 0;
+                    left: 0;
+                    border-radius: 5px;
+                }
+
+                .upload,
+                .remove {
+                    position: absolute;
+                    border-radius: 50%;
+
+                    .mat-icon {
+                        @include treo-icon-size(20);
+                    }
+                }
+
+                .upload {
+                    width: 40px;
+                    height: 40px;
+                    left: 24px;
+
+                    .avatar-file-input {
+                        position: absolute;
+                        height: 0;
+                        width: 0;
+                        opacity: 0;
+                        visibility: hidden;
+                        pointer-events: none;
+                    }
+
+                    label {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        width: 40px;
+                        min-width: 40px;
+                        height: 40px;
+                        min-height: 40px;
+                        border-radius: 50%;
+                        cursor: pointer;
+                    }
+                }
+
+                .remove {
+                    width: 40px;
+                    height: 40px;
+                    right: 24px;
+                }
+
+                img {
+                    object-fit: cover;
+                    //width: 100%;
+                    //height: 100%;
+                }
+
+                .no-avatar {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 100%;
+                    height: 100%;
+                    text-transform: uppercase;
+                    font-size: 56px;
+                    line-height: normal;
+                    overflow: hidden;
+                    border-radius: 50%;
+                }
+            }
+
+            .view {
+                margin-top: 20px;
+                width: 100%;
+
+                .name {
+                    font-size: 32px;
+                    font-weight: 700;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                }
+            }
+
+            .edit {
+                width: 100%;
+
+                .name {
+                    width: 100%;
+
+                    .mat-form-field-flex {
+                        padding-top: 0;
+                    }
+                }
+            }
+        }
+
+        > .tags {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: flex-start;
+            margin-top: 8px;
+
+            .tag,
+            .edit-tags {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 22px;
+                min-height: 22px;
+                line-height: 1 !important;
+                padding: 0 12px;
+                margin: 0 12px 12px 0;
+                border-radius: 4px;
+            }
+
+            .tag {
+                .tag-title {
+                    font-size: 11px;
+                    font-weight: 500;
+                    white-space: nowrap;
+                    text-transform: uppercase;
+                }
+            }
+
+            .edit-tags {
+                cursor: pointer;
+                padding: 0 12px 0 8px;
+
+                .mat-icon {
+                    &.add-icon {
+                        @include treo-icon-size(16);
+                        margin-right: 4px;
+                    }
+
+                    &.edit-icon {
+                        @include treo-icon-size(14);
+                        margin-right: 6px;
+                    }
+                }
+
+                span {
+                    font-size: 11px;
+                    font-weight: 500;
+                    white-space: nowrap;
+                }
+            }
+        }
+
+        > .job {
+            display: flex;
+            align-items: center;
+            margin-top: 32px;
+
+            .icon {
+                margin: 0 30px 0 -50px;
+            }
+
+            .view {
+                display: flex;
+                align-items: center;
+                flex-wrap: wrap;
+                width: 100%;
+
+                .title,
+                .company {
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    white-space: nowrap;
+                }
+            }
+
+            .edit {
+                display: flex;
+                align-items: baseline;
+                width: 100%;
+
+                .mat-form-field {
+                    flex: 1 1 auto;
+
+                    .mat-form-field-infix {
+                        width: auto;
+                    }
+
+                    + .mat-form-field {
+                        flex: 1 1 auto;
+                        padding-left: 16px;
+                        max-width: 120px;
+                        width: 100%;
+                    }
+                }
+            }
+        }
+
+        > .emails {
+            display: flex;
+            align-items: flex-start;
+            margin-top: 32px;
+
+            .icon {
+                margin: 0 30px 0 -50px;
+            }
+
+            .email {
+                display: flex;
+
+                + .email {
+                    margin-top: 16px;
+                }
+            }
+
+            .view {
+                width: 100%;
+
+                .email {
+                    align-items: center;
+                    white-space: nowrap;
+
+                    .address,
+                    .label {
+                        text-overflow: ellipsis;
+                        overflow: hidden;
+                        white-space: nowrap;
+                    }
+
+                    .label {
+                        .separator {
+                            margin: 0 8px;
+                        }
+
+                        span {
+                            font-size: 12px;
+                        }
+                    }
+                }
+            }
+
+            .edit {
+                width: 100%;
+
+                .email {
+                    position: relative;
+
+                    .mat-form-field {
+                        flex: 1 1 auto;
+
+                        .mat-form-field-infix {
+                            width: auto;
+                        }
+
+                        + .mat-form-field {
+                            flex: 1 1 auto;
+                            padding-left: 16px;
+                            max-width: 120px;
+                            width: 100%;
+                        }
+                    }
+
+                    .actions {
+                        position: absolute;
+                        display: flex;
+                        align-items: center;
+                        right: -80px;
+                        width: 80px;
+                        height: 52px;
+                        padding: 0 8px;
+
+                        .add-email-field,
+                        .remove-email-field {
+                            width: 32px;
+                            height: 32px;
+                            line-height: 32px !important;
+                            min-height: 32px;
+
+                            .mat-icon {
+                                @include treo-icon-size(20);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        > .phone-numbers {
+            display: flex;
+            align-items: flex-start;
+            margin-top: 32px;
+
+            .icon {
+                margin: 0 30px 0 -50px;
+            }
+
+            .phone-number {
+                display: flex;
+                white-space: nowrap;
+
+                + .phone-number {
+                    margin-top: 16px;
+                }
+            }
+
+            .view {
+                width: 100%;
+
+                .phone-number {
+                    align-items: center;
+
+                    .flag {
+                        display: flex;
+                        width: 24px;
+                        min-width: 24px;
+                        max-width: 24px;
+                        height: 16px;
+                        min-height: 16px;
+                        max-height: 16px;
+                        margin-right: 12px;
+                        background: url("/assets/images/apps/companies/flags.png") no-repeat 0 0;
+                        background-size: 24px 3876px;
+                        overflow: hidden;
+                    }
+
+                    .code {
+                        margin-right: 6px;
+                    }
+
+                    .number,
+                    .label {
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                        overflow: hidden;
+                    }
+
+                    .label {
+                        .separator {
+                            margin: 0 8px;
+                        }
+
+                        span {
+                            font-size: 12px;
+                        }
+                    }
+                }
+            }
+
+            .edit {
+                width: 100%;
+
+                .phone-number {
+                    position: relative;
+
+                    .mat-form-field {
+                        flex: 1 1 auto;
+
+                        .mat-form-field-infix {
+                            width: auto;
+                        }
+
+                        .mat-select {
+                            width: 48px;
+                            min-width: 48px;
+                            max-width: 48px;
+
+                            .mat-select-trigger {
+                                .flag {
+                                    display: flex;
+                                    width: 24px;
+                                    height: 16px;
+                                    background: url("/assets/images/apps/companies/flags.png") no-repeat 0 0;
+                                    background-size: 24px 3876px;
+                                    overflow: hidden;
+                                }
+                            }
+                        }
+
+                        + .mat-form-field {
+                            flex: 1 1 auto;
+                            padding-left: 16px;
+                            max-width: 120px;
+                            width: 100%;
+                        }
+                    }
+
+                    .actions {
+                        position: absolute;
+                        display: flex;
+                        align-items: center;
+                        right: -80px;
+                        width: 80px;
+                        height: 52px;
+                        padding: 0 8px;
+
+                        .add-phone-number-field,
+                        .remove-phone-number-field {
+                            width: 32px;
+                            height: 32px;
+                            line-height: 32px !important;
+                            min-height: 32px;
+
+                            .mat-icon {
+                                @include treo-icon-size(20);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    
+
+        > .address {
+            display: flex;
+            align-items: center;
+            margin-top: 32px;
+
+            .icon {
+                margin: 0 30px 0 -50px;
+            }
+
+            .view {
+                width: 100%;
+                line-height: 1.8;
+            }
+
+            .edit {
+                display: flex;
+                align-items: baseline;
+                width: 100%;
+
+                .mat-form-field {
+                    width: 100%;
+                }
+            }
+        }
+
+        > .birthday {
+            display: flex;
+            align-items: center;
+            margin-top: 32px;
+
+            .icon {
+                margin: 0 30px 0 -50px;
+            }
+
+            .view {
+                display: flex;
+                align-items: center;
+                width: 100%;
+            }
+
+            .edit {
+                display: flex;
+                align-items: baseline;
+                width: 100%;
+
+                .mat-form-field {
+                    width: 100%;
+                }
+            }
+        }
+
+        > .notes {
+            display: flex;
+            align-items: flex-start;
+            margin-top: 32px;
+
+            .icon {
+                margin: 0 30px 0 -50px;
+            }
+
+            .view {
+                width: 100%;
+
+                div {
+                    white-space: pre-line;
+                    line-height: 1.7;
+                }
+            }
+
+            .edit {
+                display: flex;
+                align-items: baseline;
+                width: 100%;
+
+                .mat-form-field {
+                    width: 100%;
+
+                    textarea {
+                        white-space: pre-line;
+                        line-height: 1.7 !important;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.companies-details-tags-panel {
+    min-width: 200px;
+    max-width: 200px;
+    margin-top: 4px;
+    border-radius: 4px;
+    border: 1px solid;
+    @include treo-elevation("md");
+
+    .tags-panel-header {
+        display: flex;
+        align-items: center;
+        margin: 16px 12px 16px 16px;
+
+        .new-tag {
+            display: flex;
+            align-items: center;
+            min-width: 0;
+
+            .mat-icon {
+                @include treo-icon-size(16);
+            }
+
+            input {
+                min-width: 0;
+                padding: 4px 0;
+                margin: 0 0 0 8px;
+                border: none;
+            }
+        }
+
+        .toggle-edit-mode {
+            margin-left: 12px;
+            width: 24px;
+            height: 24px;
+            min-height: 24px;
+
+            .mat-icon {
+                @include treo-icon-size(16);
+            }
+        }
+    }
+
+    .available-tags {
+        max-height: 272px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+
+        &:not(:empty) {
+            padding: 8px 0;
+
+            &.editing {
+                padding: 16px 0;
+            }
+        }
+
+        .mat-checkbox {
+            display: flex;
+            align-items: center;
+            height: 40px;
+            min-height: 40px;
+
+            .mat-checkbox-layout {
+                align-items: center;
+                width: 100%;
+                height: 100%;
+                padding: 8px 16px;
+
+                .mat-checkbox-inner-container {
+                    margin: 0 12px 0 0;
+                }
+            }
+        }
+
+        .tag-edit {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+
+            .mat-icon-button {
+                margin-left: 4px;
+
+                .mat-icon {
+                    @include treo-icon-size(20);
+                }
+            }
+
+            .mat-form-field {
+                min-width: 0;
+                margin: 0 16px;
+            }
+        }
+    }
+
+    .create-tag {
+        position: relative;
+        display: flex;
+        align-items: center;
+        padding: 16px 16px 16px 12px;
+        cursor: pointer;
+        line-height: 1;
+
+        .mat-icon {
+            margin-right: 8px;
+            @include treo-icon-size(18);
+        }
+
+        div {
+            width: 100%;
+            word-break: break-all;
+        }
+    }
+}
+
+.companies-details-birthday-panel {
+    display: flex;
+    flex-direction: column;
+    min-width: 320px;
+    max-width: 320px;
+    border-radius: 4px;
+    border: 1px solid;
+    @include treo-elevation("md");
+
+    @include treo-breakpoint("xs") {
+        min-width: 280px;
+        max-width: 280px;
+    }
+
+    > .mat-stroked-button {
+        margin: 16px;
+
+        .mat-icon {
+            margin-right: 8px;
+            @include treo-icon-size(20);
+        }
+    }
+}
+
+.companies-details-country-code-selector-panel {
+    .mat-option {
+        .mat-option-text {
+            display: flex;
+            align-items: center;
+
+            .flag {
+                display: flex;
+                width: 24px;
+                height: 16px;
+                background: url("/assets/images/apps/companies/flags.png") no-repeat 0 0;
+                background-size: 24px 3876px;
+                margin-right: 12px;
+                overflow: hidden;
+            }
+
+            .country {
+                margin-right: 12px;
+                line-height: 1;
+            }
+
+            .code {
+                font-size: 13px;
+                font-weight: 500;
+                line-height: 1;
+            }
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Theming
+// -----------------------------------------------------------------------------------------------------
+@include treo-theme {
+    $background: map-get($theme, background);
+    $foreground: map-get($theme, foreground);
+    $primary: map-get($theme, primary);
+    $is-dark: map-get($theme, is-dark);
+
+    companies-details {
+        form {
+            // Edit mode
+            &.edit-mode {
+                > .avatar-and-name {
+                    .avatar {
+                        &:before {
+                            background: rgba(0, 0, 0, 0.6);
+                        }
+                    }
+                }
+            }
+
+            > .avatar-and-name {
+                .avatar {
+                    &:before {
+                        @if ($is-dark) {
+                            //box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.54);
+                        } @else {
+                            //box-shadow: inset 0 0 0 3px rgba(0, 0, 0, 0.38);
+                        }
+                    }
+
+                    .upload,
+                    .remove {
+                        .mat-icon {
+                            color: white;
+                        }
+                    }
+
+                    .upload {
+                        label {
+                            &:hover,
+                            &:focus {
+                                @if ($is-dark) {
+                                    background-color: treo-color("cool-gray", 800);
+                                } @else {
+                                    background-color: rgba(treo-color("cool-gray", 400), 0.2);
+                                }
+                            }
+                        }
+                    }
+
+                    .no-avatar {
+                        background: treo-color("cool-gray", 200);
+                        color: treo-color("cool-gray", 600);
+                    }
+                }
+            }
+
+            > .tags {
+                .tag,
+                .edit-tags {
+                    color: treo-color("cool-gray", 500);
+
+                    .mat-icon {
+                        color: treo-color("cool-gray", 500);
+                    }
+
+                    @if ($is-dark) {
+                        background: treo-color("cool-gray", 800);
+                    } @else {
+                        background: treo-color("cool-gray", 100);
+                    }
+                }
+            }
+
+            > .job {
+            }
+
+            > .emails {
+                .view {
+                    .email {
+                        .label {
+                            .separator,
+                            span {
+                                color: map-get($foreground, secondary-text);
+                            }
+                        }
+                    }
+                }
+
+                .edit {
+                    .email {
+                        .actions {
+                            .add-email-field {
+                                .mat-icon {
+                                    color: map-get($primary, default);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            > .phone-numbers {
+                .view {
+                    .phone-number {
+                        .label {
+                            .separator,
+                            span {
+                                color: map-get($foreground, secondary-text);
+                            }
+                        }
+                    }
+                }
+
+                .edit {
+                    .phone-number {
+                        .actions {
+                            .add-phone-number-field {
+                                .mat-icon {
+                                    color: map-get($primary, default);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            > .address {
+            }
+
+            > .birthday {
+                .birthday-content {
+                    .placeholder {
+                        color: map-get($foreground, hint-text);
+                    }
+                }
+            }
+
+            > .notes {
+            }
+        }
+    }
+
+    .companies-details-tags-panel {
+        background: map-get($background, card);
+        border-color: map-get($foreground, divider);
+
+        .available-tags {
+            box-shadow: 0 -1px 0 0 map-get($foreground, divider);
+
+            .mat-checkbox {
+                &:hover {
+                    background: map-get($background, hover);
+                }
+            }
+        }
+
+        .create-tag {
+            background: map-get($background, hover);
+        }
+    }
+
+    .companies-details-birthday-panel {
+        background: map-get($background, card);
+        border-color: map-get($foreground, divider);
+    }
+
+    .companies-details-country-code-selector-panel {
+        .mat-option {
+            .mat-option-text {
+                .code {
+                    color: map-get($foreground, secondary-text);
+                }
+            }
+        }
+    }
+}

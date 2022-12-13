@@ -1,0 +1,188 @@
+<div class="content-layout right-sidebar-fullheight-basic-inner-scroll">
+
+    <mat-drawer-container (backdropClick)="onBackdropClicked()">
+
+        <!-- Drawer -->
+        <mat-drawer [mode]="drawerMode"
+                    [opened]="false"
+                    [position]="'end'"
+                    [disableClose]="true"
+                    #matDrawer>
+
+            <router-outlet></router-outlet>
+
+        </mat-drawer>
+
+        <mat-drawer-content>
+
+            <!-- Main -->
+            <div class="main">
+
+                <!-- Header -->
+                <div class="header">
+
+                    <!-- Title -->
+                    <div class="title">
+                        <div class="breadcrumb mb-2">
+                            <span class="path">CM People</span>
+                        </div>
+
+                        <h1>Companies</h1>
+
+                        <div class="companies-count">
+                            <ng-container *ngIf="companiesCount > 0">
+                                {{companiesCount}}
+                            </ng-container>
+                            {{companiesCount | i18nPlural: {
+                            '=0' : 'No companies',
+                            '=1' : 'company',
+                            'other': 'companies'
+                            } }}
+                        </div>
+
+                    </div>
+
+                    <!-- Main actions -->
+                    <div class="main-actions">
+
+                        <!-- Search -->
+                        <div class="search">
+
+                            <mat-form-field class="treo-mat-dense treo-mat-no-subscript">
+                                <mat-icon matPrefix
+                                          [svgIcon]="'search'"></mat-icon>
+                                <input matInput
+                                       [formControl]="searchInputControl"
+                                       [autocomplete]="'off'"
+                                       [placeholder]="'Search companies'">
+                            </mat-form-field>
+
+                        </div>
+
+                        <!-- Add company button -->
+                        <button *ngIf="this.authorizationService.isAuthorized('CreateCompany')"
+                                class="add-company"
+                                mat-flat-button
+                                [color]="'primary'"
+                                (click)="createCompany()">
+                            <mat-icon [svgIcon]="'add'"></mat-icon>
+                            Add Company
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <!-- Companies list -->
+                <div class="companies-list">
+
+                    <ng-container *ngIf="companiesCount > 0; else noCompanies">
+
+                        <!-- Table -->
+                        <table mat-table
+                               #CompaniesSort='matSort'
+                               [dataSource]="companiesDataSource"
+                               matSort>
+
+
+
+                            <!-- CompanyName -->
+                            <ng-container matColumnDef="CompanyName">
+                                <th mat-header-cell
+                                    *matHeaderCellDef
+                                    mat-sort-header>
+                                    Company Name
+                                </th>
+                                <td mat-cell
+                                    *matCellDef="let company">
+                                    <div class="name-content">
+                                        <span class="name">{{company.CompanyName}}</span>
+                                    </div>
+                                </td>
+                            </ng-container>
+                            
+                            <!-- CompanyName -->
+                            <ng-container matColumnDef="BadgeUsers">
+                                <th mat-header-cell
+                                    *matHeaderCellDef>
+                                    Badge users
+                                </th>
+                                <td mat-cell
+                                    *matCellDef="let company">
+                                    <div class="name-content">
+                                        <p class="name">{{ getBadgeUsersCounterByCompany(company.CompanyName) }}</p>
+                                    </div>
+                                </td>
+                            </ng-container>
+                            
+                            <!-- CompanyName -->
+                            <ng-container matColumnDef="BadgeVisitors">
+                                <th mat-header-cell
+                                    *matHeaderCellDef>
+                                    Badge visitors
+                                </th>
+                                <td mat-cell
+                                    *matCellDef="let company">
+                                    <div class="name-content">
+                                        <p class="name">{{ getBadgeVisitorsCounterByCompany(company.CompanyName) }}</p>
+                                    </div>
+                                </td>
+                            </ng-container>
+
+                            <ng-container matColumnDef="Actions">
+                                <th mat-header-cell
+                                    *matHeaderCellDef
+                                    mat-sort-header>
+                                    Actions
+                                </th>
+                                <td mat-cell
+                                    *matCellDef="let company"
+                                    (click)="$event.stopPropagation()">
+                                    <ng-container>
+                                        <button mat-flat-button="gotoUsersButton"
+                                                class="mat-focus-indicator px-3 mb-1 mt-1 ml-2 mat-flat-button mat-button-base mat-primary blue-300"
+                                                [routerLink]="['/users/Company/', company.CompanyName]">
+                                            <span class="mat-button-wrapper"> Go to users </span>
+                                            <div matripple=""
+                                                 class="mat-ripple mat-button-ripple"></div>
+                                            <div class="mat-button-focus-overlay"></div>
+                                        </button>
+                                        <button *ngIf="this.authorizationService.isAuthorized('UpdateCompany')"
+                                                mat-flat-button="seeDetailsButton"
+                                                class="mat-focus-indicator px-3 mb-1 mt-1 ml-2 mat-flat-button mat-button-base mat-primary "
+                                                (click)="goToCompany(company.CompanyName, true)">
+                                            <span class="mat-button-wrapper"> Edit company </span>
+                                            <div matripple=""
+                                                 class="mat-ripple mat-button-ripple"></div>
+                                            <div class="mat-button-focus-overlay"></div>
+                                        </button>
+                                    </ng-container>
+                                </td>
+
+                            </ng-container>
+
+                            <tr mat-header-row
+                                *matHeaderRowDef="companiesTableColumns"></tr>
+                            <tr class="company-row"
+                                [ngClass]="{'selected': selectedCompany && selectedCompany.CompanyName === row.CompanyName}"
+                                mat-row
+                                *matRowDef="let row; columns: companiesTableColumns;"
+                                (click)="goToCompany(row.CompanyName)"></tr>
+
+                        </table>
+
+                    </ng-container>
+
+                    <ng-template #noCompanies>
+                        <div class="no-companies">There are no companies!</div>
+                    </ng-template>
+
+                </div>
+
+            </div>
+
+        </mat-drawer-content>
+
+    </mat-drawer-container>
+
+</div>
