@@ -1,3 +1,8 @@
+# Project setup
+1. Execute all deploy steps of AWS Backend
+2. Configure your AWS informations in main.ts file
+3. test the ui locally with :>  ng serve 
+
 # How to test with k8s backend:
 1. go to main.ts and set the flag "k8s = true" (row 11). 
 
@@ -15,5 +20,6 @@
 8. set the allow policy for "*" for the action "s3:getObject".
 9. upload all files from "FRONTEND_CM/src/dist" to your bucket main directory
 10. go to your bucket endpoint
+
 
 
